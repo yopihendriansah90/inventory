@@ -568,3 +568,5 @@ php artisan optimize:clear
 ## License
 
 Refer to our [LICENSE](https://tailadmin.com/license) page for more information.
+#   i n v e n t o r y  
+ 
