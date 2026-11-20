@@ -1,5 +1,6 @@
+@php($warehouseNavigation = request()->routeIs('inventory.*') && auth()->user()?->can('receive-stock'))
 <!DOCTYPE html>
-<html lang="en" dir="ltr" class="h-full bg-gray-50 dark:bg-gray-900">
+<html lang="{{ app()->getLocale() }}" dir="ltr" class="h-full bg-gray-50 dark:bg-gray-900">
 
 <head>
     <script>
@@ -8,7 +9,7 @@
         })();
     </script>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1{{ $warehouseNavigation ? ', viewport-fit=cover' : '' }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     @include('layouts.head-meta')
@@ -137,24 +138,34 @@
 </head>
 
 <body>
-
-
+    <x-common.notifications />
 
     <div class="min-h-screen xl:flex sidebar-expanded" x-data :class="{ 'sidebar-expanded': $store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen }">
-        @include('layouts.backdrop')
-        @include('layouts.sidebar')
+        @if ($warehouseNavigation)
+            <div class="hidden xl:contents">
+                @include('layouts.sidebar')
+            </div>
+        @else
+            @include('layouts.backdrop')
+            @include('layouts.sidebar')
+        @endif
 
         {{-- transition-all duration-300 ease-in-out --}}
         <div class="flex-1 min-w-0 ml-0 ltr:xl:ml-[90px] rtl:xl:ml-0 rtl:xl:mr-[90px] [.sidebar-expanded_&]:ltr:xl:ml-[290px] [.sidebar-expanded_&]:rtl:xl:ml-0 [.sidebar-expanded_&]:rtl:xl:mr-[290px] transition-all duration-300 ease-in-out">
             <!-- app header start -->
-            @include('layouts.app-header')
+            @include(request()->routeIs('inventory.*') ? 'components.main.inventory.header' : 'layouts.app-header')
             <!-- app header end -->
-            <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
+            <div @class(['mx-auto max-w-(--breakpoint-2xl) p-4 md:px-6 md:pt-6',
+                'pb-[calc(5.5rem+env(safe-area-inset-bottom))] xl:pb-6' => $warehouseNavigation,
+                'md:pb-6' => ! $warehouseNavigation])>
                 @yield('content')
             </div>
         </div>
 
     </div>
+    @if ($warehouseNavigation)
+        <x-main.inventory.warehouse-navigation />
+    @endif
 
 </body>
 

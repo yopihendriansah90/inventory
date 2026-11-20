@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
@@ -21,6 +23,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::define('record-qc', fn (User $user) => $user->role === 'qc');
+        Gate::define('receive-stock', fn (User $user) => $user->role === 'warehouse');
+        Gate::define('view-stock', fn (User $user) => in_array($user->role, ['warehouse', 'cs'], true));
+        Gate::define('request-dispatch', fn (User $user) => $user->role === 'cs');
+
         // Force HTTPS in production
         if (config('app.env') === 'production') {
             URL::forceScheme('https');

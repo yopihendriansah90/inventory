@@ -1,0 +1,46 @@
+<?php
+
+return [
+    'required' => 'Isi :attribute.',
+    'string' => ':Attribute harus berupa teks.',
+    'email' => 'Masukkan alamat email yang valid.',
+    'in' => 'Pilihan :attribute tidak tersedia.',
+    'exists' => ':Attribute yang dipilih tidak ditemukan.',
+    'distinct' => 'Produk yang sama hanya boleh dimasukkan satu kali per tiket.',
+    'date_format' => 'Masukkan :attribute dengan format yang valid.',
+    'integer' => ':Attribute harus berupa bilangan bulat.',
+    'array' => 'Data :attribute tidak valid.',
+    'regex' => 'Gunakan huruf atau angka untuk :attribute. Spasi dan tanda hubung boleh dipakai sebagai pemisah.',
+    'min' => [
+        'array' => 'Tambahkan minimal :min :attribute.',
+        'numeric' => ':Attribute minimal :min.',
+    ],
+    'max' => [
+        'numeric' => ':Attribute maksimal :max.',
+        'string' => ':Attribute maksimal :max karakter.',
+    ],
+    'lte' => [
+        'numeric' => ':Attribute tidak boleh melebihi :value.',
+    ],
+    'attributes' => [
+        'email' => 'email',
+        'password' => 'kata sandi',
+        'locale' => 'bahasa',
+        'return_to' => 'alamat tujuan',
+        'reference' => 'nomor surat jalan',
+        'received_on' => 'tanggal penerimaan',
+        'inventory_vendor_id' => 'vendor',
+        'lines' => 'barang',
+        'lines.*' => 'rincian barang',
+        'lines.*.inventory_variant_id' => 'produk',
+        'lines.*.received_quantity' => 'jumlah fisik',
+        'lines.*.failed_quantity' => 'jumlah gagal',
+        'lines.*.notes' => 'catatan',
+        'name' => 'nama vendor',
+        'model' => 'model',
+        'color' => 'warna',
+        'size' => 'ukuran',
+        'q' => 'kata kunci pencarian',
+        'sku' => 'SKU',
+    ],
+];

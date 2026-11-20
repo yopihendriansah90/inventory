@@ -1432,3 +1432,11 @@ pre[class*='language-'].line-numbers {
   direction: rtl;
   text-align: right;
 }
+
+.swal2-container.app-notification-layer {
+  @apply z-999999;
+}
+
+.swal2-popup.app-notification-toast {
+  @apply rounded-xl shadow-theme-lg;
+}

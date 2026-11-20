@@ -18,7 +18,7 @@
                 <x-ui.dialog.close as-child>
                     <x-ui.button variant="ghost" :size="$fullScreen ? 'icon-lg' : 'icon-sm'" :class="$closeClass">
                         <x-svg.x :class="$fullScreen ? 'size-6' : null" />
-                        <span class="sr-only">Close</span>
+                        <span class="sr-only">{{ __('Close') }}</span>
                     </x-ui.button>
                 </x-ui.dialog.close>
             @endif

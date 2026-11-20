@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr" class="h-full bg-gray-50 dark:bg-gray-900">
+<html lang="{{ app()->getLocale() }}" dir="ltr" class="h-full bg-gray-50 dark:bg-gray-900">
 
 <head>
     <script>
@@ -139,6 +139,7 @@
         })();
     </script>
 
+    <x-common.notifications />
     @yield('content')
 
 </body>

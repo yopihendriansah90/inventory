@@ -1,6 +1,25 @@
 @php
     use App\Helpers\MenuHelper;
-    $menuGroups = MenuHelper::getMenuGroups();
+    $inventory = request()->routeIs('inventory.*');
+    $menuGroups = $inventory ? [[
+        'title' => 'inventory.title',
+        'items' => collect([
+            ['name' => 'inventory.dashboard.title', 'route' => 'inventory.home', 'icon' => 'dashboard'],
+            ['name' => 'inventory.qc.title', 'route' => 'inventory.qc', 'icon' => 'forms', 'ability' => 'record-qc'],
+            ['name' => 'inventory.receiving.title', 'route' => 'inventory.receiving', 'icon' => 'ecommerce', 'ability' => 'receive-stock'],
+            ['name' => 'inventory.stock.title', 'route' => 'inventory.stock', 'icon' => 'tables', 'ability' => 'view-stock'],
+            ['name' => auth()->user()->can('request-dispatch') ? 'inventory.dispatch.tracking' : 'inventory.dispatch.title',
+                'route' => 'inventory.dispatch.index', 'icon' => 'forms', 'ability' => 'view-stock'],
+        ])->filter(fn ($item) => ! isset($item['ability']) || auth()->user()->can($item['ability']))->map(fn ($item) => $item + [
+            'path' => route($item['route'], absolute: false),
+            'active' => request()->routeIs($item['route']) || match ($item['route']) {
+                'inventory.qc' => request()->routeIs('inventory.ticket.show'),
+                'inventory.receiving' => request()->routeIs('inventory.receiving.scan', 'inventory.ticket.receive'),
+                'inventory.dispatch.index' => request()->routeIs('inventory.dispatch.*'),
+                default => false,
+            },
+        ])->values()->all(),
+    ]] : MenuHelper::getMenuGroups();
 
     // Get current path
     $currentPath = request()->path();
@@ -165,9 +184,10 @@
                                         </div>
                                     @else
                                         <!-- Simple Menu Item -->
-                                        <a href="{{ $item['path'] }}" @if(str_starts_with($item['path'], '/layout-')) target="_blank" @endif class="menu-item group"
+                                        <a href="{{ $inventory ? route($item['route']) : $item['path'] }}" @if(str_starts_with($item['path'], '/layout-')) target="_blank" @endif class="menu-item group"
+                                            aria-label="{{ __($item['name']) }}" @if($item['active'] ?? false) aria-current="page" @endif
                                             :class="[
-                                                isActive('{{ $item['path'] }}') ? 'menu-item-active' :
+                                                (@js($item['active'] ?? false) || isActive('{{ $item['path'] }}')) ? 'menu-item-active' :
                                                 'menu-item-inactive',
                                                 (!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ?
                                                 'xl:justify-center' :
@@ -176,7 +196,7 @@
 
                                             <!-- Icon -->
                                             <span
-                                                :class="isActive('{{ $item['path'] }}') ? 'menu-item-icon-active' :
+                                                :class="(@js($item['active'] ?? false) || isActive('{{ $item['path'] }}')) ? 'menu-item-icon-active' :
                                                     'menu-item-icon-inactive'">
                                                 {!! MenuHelper::getIconSvg($item['icon']) !!}
                                             </span>
@@ -204,9 +224,11 @@
         </nav>
 
         <!-- Sidebar Widget -->
-        <div x-data x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen" x-transition class="mt-auto">
-            @include('layouts.sidebar-widget')
-        </div>
+        @unless($inventory)
+            <div x-data x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen" x-transition class="mt-auto">
+                @include('layouts.sidebar-widget')
+            </div>
+        @endunless
 
     </div>
 </aside>

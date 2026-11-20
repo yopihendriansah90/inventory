@@ -2,7 +2,7 @@
 @props(['showTrigger' => true, 'showClear' => false, 'placeholder' => ''])
 <x-ui.input-group x-ref="anchor" {{ $attributes->only('class')->merge(['class' => 'w-full']) }}>
     <x-ui.input-group.input type="text" role="combobox" aria-autocomplete="list" x-ref="input" x-model="query" placeholder="{{ $placeholder }}"
-        x-bind:aria-expanded="open ? 'true' : 'false'" x-bind:aria-controls="id" x-on:input="onInput()" x-on:keydown="onKeydown($event)" x-on:click="if (!open) show()"
+        x-bind:aria-expanded="open ? 'true' : 'false'" x-bind:aria-controls="id" x-bind:aria-activedescendant="activeId" x-on:input="onInput()" x-on:keydown="onKeydown($event)" x-on:click="if (!open) show()"
         {{ $attributes->except('class') }} />
     <x-ui.input-group.addon align="inline-end">
         @if ($showTrigger)

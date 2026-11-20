@@ -5,6 +5,11 @@ import "flatpickr/dist/flatpickr.min.css";
 import "./bootstrap";
 import initCharts from "./components/chart";
 import registerUi from "./ui";
+import inventoryQc from "./components/inventory/qc";
+import dispatchForm from "./components/inventory/dispatch-form";
+import stockSearch from "./components/inventory/stock-search";
+import warehouseScanner from "./components/inventory/warehouse-scanner";
+import { confirmAction, initializeNotifications, notify } from "./notifications";
 
 window.Alpine = Alpine;
 window.createPopper = createPopper;
@@ -55,6 +60,12 @@ Alpine.data("dropdown", () => ({
 }));
 
 registerUi(Alpine);
+Alpine.data("inventoryQc", inventoryQc);
+Alpine.data("dispatchForm", dispatchForm);
+Alpine.data("stockSearch", stockSearch);
+Alpine.data("warehouseScanner", warehouseScanner);
+Alpine.magic("notify", () => notify);
+Alpine.magic("confirmAction", () => confirmAction);
 
 // Free ships English only: choosing a language only switches the layout direction (RTL for Arabic).
 Alpine.store("direction", {
@@ -78,6 +89,7 @@ Alpine.store("direction", {
 
 
 Alpine.start();
+initializeNotifications();
 
 
 // Initialize components on DOM ready

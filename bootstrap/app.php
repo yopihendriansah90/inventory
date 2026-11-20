@@ -12,6 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
+        $middleware->redirectGuestsTo(fn () => route('signin'));
+        $middleware->redirectUsersTo(fn () => route('inventory.home'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

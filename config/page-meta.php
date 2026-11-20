@@ -1,6 +1,38 @@
 <?php
 
 return [
+    '/inventory' => [
+        'title' => 'inventory.dashboard.title',
+        'description' => 'inventory.dashboard.description',
+    ],
+    '/inventory/qc' => [
+        'title' => 'inventory.meta.qc.title',
+        'description' => 'inventory.meta.qc.description',
+    ],
+    '/inventory/receiving' => [
+        'title' => 'inventory.meta.receiving.title',
+        'description' => 'inventory.meta.receiving.description',
+    ],
+    '/inventory/receiving/scan' => [
+        'title' => 'inventory.scan.meta_title',
+        'description' => 'inventory.scan.description',
+    ],
+    '/inventory/stock' => [
+        'title' => 'inventory.meta.stock.title',
+        'description' => 'inventory.meta.stock.description',
+    ],
+    '/inventory/dispatch' => [
+        'title' => 'inventory.dispatch.title',
+        'description' => 'inventory.dispatch.description',
+    ],
+    '/inventory/dispatch/create' => [
+        'title' => 'inventory.dispatch.create',
+        'description' => 'inventory.dispatch.description',
+    ],
+    '/inventory/dispatch/scan' => [
+        'title' => 'inventory.dispatch.scan',
+        'description' => 'inventory.dispatch.description',
+    ],
     '/alerts' => [
         'title' => 'Laravel Alerts | TailAdmin - Laravel Dashboard Template',
         'description' => 'This is Laravel Alerts page for TailAdmin - Laravel Tailwind CSS Admin Dashboard Template',
@@ -58,8 +90,8 @@ return [
         'description' => 'Manage your personal information, security settings, and preference on the TailAdmin Profile page.',
     ],
     '/signin' => [
-        'title' => 'Laravel SignIn Page | TailAdmin - Laravel Dashboard Template',
-        'description' => 'This is Laravel Signin Page TailAdmin Dashboard Template',
+        'title' => 'inventory.meta.signin.title',
+        'description' => 'inventory.meta.signin.description',
     ],
     '/signup' => [
         'title' => 'Laravel SignUp Page | TailAdmin - Laravel Dashboard Template',

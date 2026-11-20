@@ -1,0 +1,225 @@
+<div id="inventory-design" lang="id">
+  <header class="inv-header">
+    <strong>Inventory Gamis</strong>
+    <nav aria-label="Tampilan peran">
+      <button type="button" data-view="qc" aria-pressed="true">QC</button>
+      <button type="button" data-view="warehouse" aria-pressed="false">Admin Gudang</button>
+      <button type="button" data-view="cs" aria-pressed="false">CS</button>
+    </nav>
+  </header>
+  <main class="inv-main">
+    <section data-panel="qc">
+      <h1>Penerimaan &amp; QC</h1>
+      <form data-qc class="inv-card">
+        <h2>Hasil pemeriksaan</h2>
+        <div class="inv-grid">
+          <label>Nomor surat jalan<input name="reference" value="SJ-001" required maxlength="50"></label>
+          <label>Tanggal penerimaan<input name="date" type="date" required></label>
+        </div>
+        <label>Varian<select name="sku" required></select></label>
+        <details>
+          <summary>Tambah varian untuk Gamis Amina Hitam</summary>
+          <div class="inv-actions">
+            <label>Ukuran baru<input data-new-size maxlength="8" placeholder="XL"></label>
+            <button type="button" data-add>Simpan varian</button>
+          </div>
+          <p data-variant-status role="status"></p>
+        </details>
+        <div class="inv-grid">
+          <label>Jumlah fisik diterima<input name="received" type="number" min="1" step="1" value="20" required></label>
+          <label>Jumlah gagal<input name="failed" type="number" min="0" step="1" value="2" required></label>
+        </div>
+        <label>Catatan QC<input name="note" value="Jahitan lepas" maxlength="150"></label>
+        <div class="inv-actions">
+          <button type="button" data-all-pass>Semua lolos</button>
+          <strong data-passed role="status"></strong>
+          <button type="submit" class="inv-primary">Simpan hasil QC</button>
+        </div>
+        <p data-qc-status role="status"></p>
+      </form>
+      <div class="inv-card">
+        <h2>Riwayat QC</h2>
+        <div data-history></div>
+      </div>
+    </section>
+    <section data-panel="warehouse" hidden>
+      <h1>Penerimaan &amp; QC</h1>
+      <div class="inv-card">
+        <h2>Penerimaan gudang</h2>
+        <div data-queue></div>
+        <div data-detail hidden>
+          <p data-detail-text></p>
+          <button type="button" class="inv-primary" data-confirm>Terima ke gudang</button>
+        </div>
+        <p data-warehouse-status role="status"></p>
+      </div>
+    </section>
+    <section data-panel="cs" hidden>
+      <h1>Stok Siap Jual</h1>
+      <div class="inv-card">
+        <label>Cari SKU atau ukuran<input type="search" data-search placeholder="Contoh AMN-HTM-M"></label>
+        <table>
+          <thead><tr><th scope="col">Varian</th><th scope="col">Stok</th></tr></thead>
+          <tbody data-stock></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+<style>
+  #inventory-design { color: light-dark(#101828,#f2f4f7); background: light-dark(#f9fafb,#101828); border: 1px solid light-dark(#e4e7ec,#344054); border-radius: 16px; font: 14px/1.5 Outfit, system-ui, sans-serif; }
+  #inventory-design [hidden], #inventory-design [role="status"]:empty { display: none; }
+  #inventory-design .inv-header, #inventory-design .inv-actions, #inventory-design .inv-row, #inventory-design nav { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  #inventory-design .inv-header { padding: 14px 20px; justify-content: space-between; background: light-dark(#fff,#1d2939); border-radius: 16px 16px 0 0; border-bottom: 1px solid light-dark(#e4e7ec,#344054); }
+  #inventory-design .inv-main { display: block; padding: clamp(12px,3vw,24px); }
+  #inventory-design .inv-card { display: grid; gap: 14px; background: light-dark(#fff,#1d2939); border: 1px solid light-dark(#e4e7ec,#344054); border-radius: 14px; padding: clamp(12px,3vw,20px); margin-block-start: 12px; }
+  #inventory-design h1, #inventory-design h2, #inventory-design p { margin: 0; color: inherit; }
+  #inventory-design h1 { font-size: 22px; }
+  #inventory-design h2 { font-size: 16px; }
+  #inventory-design .inv-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,170px),1fr)); gap: 12px; }
+  #inventory-design label { display: grid; gap: 5px; min-width: 0; }
+  #inventory-design input, #inventory-design select, #inventory-design button { box-sizing: border-box; min-width: 0; min-height: 44px; padding: 7px 10px; font: inherit; color: inherit; background: light-dark(#fff,#1d2939); border: 1px solid light-dark(#d0d5dd,#475467); border-radius: 8px; }
+  #inventory-design :is(button,summary) { cursor: pointer; }
+  #inventory-design button:disabled { cursor: default; opacity: .55; }
+  #inventory-design button:is(.inv-primary,[aria-pressed="true"]) { color: #fff; background: light-dark(#465fff,#3641f5); border-color: transparent; }
+  #inventory-design .inv-actions:has([data-add]) { align-items: end; margin-block: 8px; }
+  #inventory-design .inv-row { justify-content: space-between; padding-block: 8px; border-bottom: 1px solid light-dark(#e4e7ec,#344054); }
+  #inventory-design table { width: 100%; border-collapse: collapse; }
+  #inventory-design :is(th,td) { text-align: start; padding: 10px 0; border-bottom: 1px solid light-dark(#e4e7ec,#344054); }
+  #inventory-design :is(th,td):last-child { text-align: end; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  #inventory-design [data-detail] { display: grid; gap: 10px; justify-items: start; }
+</style>
+<script>
+(() => {
+  const root = document.getElementById('inventory-design');
+  const get = (selector) => root.querySelector(selector);
+  const qc = get('[data-qc]');
+  const { date, sku, received, failed, note, reference } = qc.elements;
+  const variants = new Map([['M', 5], ['L', 0]]);
+  const receipts = [];
+  const localToday = new Date();
+  localToday.setMinutes(localToday.getMinutes() - localToday.getTimezoneOffset());
+  date.value = localToday.toISOString().slice(0, 10);
+  let selected = null;
+  const skuCode = (size) => `AMN-HTM-${size}`;
+  const variantLabel = (size) => `Gamis Amina Hitam · ${size}`;
+  const status = (receipt) => receipt.confirmed ? 'Diterima gudang' : receipt.passed ? 'Menunggu diterima gudang' : 'Gagal QC';
+
+  function renderVariants(size) {
+    sku.replaceChildren(...Array.from(variants.keys(), (key) => new Option(`${variantLabel(key)} (${skuCode(key)})`, key)));
+    sku.value = size;
+  }
+
+  function renderPassed() {
+    failed.max = received.value;
+    const valid = received.value !== '' && failed.value !== '' && received.validity.valid && failed.validity.valid;
+    get('[data-passed]').textContent = valid ? `Lolos ${received.valueAsNumber - failed.valueAsNumber} buah` : 'Jumlah lolos —';
+  }
+
+  function renderReceipts() {
+    const history = get('[data-history]');
+    const queue = get('[data-queue]');
+    history.textContent = receipts.length ? '' : 'Belum ada hasil QC.';
+    queue.textContent = receipts.some((receipt) => receipt.passed) ? '' : 'Belum ada penerimaan dengan barang lolos QC.';
+    for (const receipt of receipts) {
+      const row = document.createElement('p');
+      row.className = 'inv-row';
+      row.textContent = `${receipt.date} · ${receipt.reference} · ${skuCode(receipt.size)} · ${receipt.passed} lolos, ${receipt.failed} gagal · ${status(receipt)}`;
+      history.append(row);
+      if (receipt.note) {
+        const noteText = document.createElement('p');
+        noteText.textContent = receipt.note;
+        history.append(noteText);
+      }
+      if (!receipt.passed) continue;
+      const item = document.createElement('div');
+      const label = document.createElement('span');
+      const scan = document.createElement('button');
+      item.className = 'inv-row';
+      label.textContent = `${receipt.reference} · ${skuCode(receipt.size)} · ${status(receipt)}`;
+      scan.type = 'button';
+      scan.textContent = 'Simulasi pindai QR';
+      scan.addEventListener('click', () => {
+        selected = receipt;
+        get('[data-warehouse-status]').textContent = '';
+        renderReceiptDetail();
+      });
+      item.append(label, scan);
+      queue.append(item);
+    }
+  }
+
+  function renderReceiptDetail() {
+    get('[data-detail]').hidden = selected === null;
+    if (!selected) return;
+    get('[data-detail-text]').textContent = `${variantLabel(selected.size)} · ${selected.passed} buah lolos · ${status(selected)}`;
+    get('[data-confirm]').disabled = selected.confirmed;
+  }
+
+  function renderStock() {
+    const query = get('[data-search]').value.trim().toLowerCase();
+    const table = get('[data-stock]');
+    table.replaceChildren();
+    for (const [size, quantity] of variants) {
+      const description = `${variantLabel(size)} (${skuCode(size)})`;
+      if (!description.toLowerCase().includes(query)) continue;
+      const row = table.insertRow();
+      row.insertCell().textContent = description;
+      row.insertCell().textContent = `${quantity} buah`;
+    }
+    if (!table.rows.length) {
+      const cell = table.insertRow().insertCell();
+      cell.colSpan = 2;
+      cell.textContent = 'Varian tidak ditemukan.';
+    }
+  }
+
+  for (const button of root.querySelectorAll('[data-view]')) {
+    button.addEventListener('click', () => {
+      for (const peer of root.querySelectorAll('[data-view]')) peer.setAttribute('aria-pressed', String(peer === button));
+      for (const panel of root.querySelectorAll('[data-panel]')) panel.hidden = panel.dataset.panel !== button.dataset.view;
+    });
+  }
+  qc.addEventListener('input', renderPassed);
+  get('[data-all-pass]').addEventListener('click', () => {
+    failed.value = 0;
+    renderPassed();
+  });
+  get('[data-add]').addEventListener('click', () => {
+    const field = get('[data-new-size]');
+    const size = field.value.trim().toUpperCase();
+    const message = get('[data-variant-status]');
+    if (!/^[A-Z0-9]{1,8}$/.test(size)) {
+      message.textContent = 'Isi ukuran dengan 1–8 huruf atau angka.';
+      return;
+    }
+    const exists = variants.has(size);
+    if (!exists) variants.set(size, 0);
+    renderVariants(size);
+    renderStock();
+    field.value = '';
+    message.textContent = exists ? `${skuCode(size)} dipilih.` : `${skuCode(size)} ditambahkan dengan stok 0.`;
+  });
+  qc.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const passed = received.valueAsNumber - failed.valueAsNumber;
+    receipts.unshift({ reference: reference.value, date: date.value, size: sku.value, passed, failed: failed.valueAsNumber, note: note.value, confirmed: false });
+    get('[data-qc-status]').textContent = passed ? `Hasil QC tersimpan. QR penerimaan untuk ${passed} buah siap dipindai gudang.` : 'Hasil QC tersimpan dengan status Gagal QC.';
+    renderReceipts();
+  });
+  get('[data-confirm]').addEventListener('click', () => {
+    if (!selected || selected.confirmed) return;
+    selected.confirmed = true;
+    variants.set(selected.size, variants.get(selected.size) + selected.passed);
+    get('[data-warehouse-status]').textContent = `${selected.passed} buah ditambahkan ke stok ${skuCode(selected.size)}.`;
+    renderReceipts();
+    renderReceiptDetail();
+    renderStock();
+  });
+  get('[data-search]').addEventListener('input', renderStock);
+  renderVariants('M');
+  renderPassed();
+  renderReceipts();
+  renderStock();
+})();
+</script>

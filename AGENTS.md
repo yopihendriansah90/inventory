@@ -77,9 +77,9 @@ routes/
 
 ## RTL Layout Architecture (Free Version Rules)
 
-- **English Only (No Translations)**:
-  - Translating the UI into other languages is a Pro-only feature. Free ships English only.
-  - UI strings live in `lang/en.json` and are read with `__('key')`; there is no locale route or locale middleware.
+- **TailAdmin demos and inventory UI language**:
+  - TailAdmin sample pages use English. The inventory application and its sign-in page support English and Indonesian through a separate language selector.
+  - Use `__('key')` for visible strings. Add inventory strings to both `lang/en.json` and `lang/id.json`.
   - The Language menu in the user dropdown looks the same as Pro, but picking a language only changes the layout direction (Arabic → RTL, all others → LTR). The text stays English.
 - **RTL State & Toggle**:
   - Toggled via the Language menu in the user dropdown (`user-dropdown.blade.php`), backed by `Alpine.store("direction")` in `resources/js/app.js`.
@@ -130,11 +130,21 @@ routes/
 - Don't hardcode physical directional utilities (`ml-*`, `mr-*`, `pl-*`, `pr-*`, `left-*`, `right-*`, `border-l-*`, `border-r-*`, `rounded-l-*`, `rounded-r-*`, `text-left`, `text-right`) without providing proper RTL support (`ltr:` / `rtl:` or CSS logical equivalents).
 - Don't create a `tailwind.config.js` file — Tailwind v4 configuration belongs in `resources/css/app.css`.
 - Don't hardcode user-facing strings in Blade files without adding corresponding keys to `lang/en.json`.
-- Don't add extra locale files or real translations — that is a Pro feature.
+- Keep Indonesian translations scoped to the inventory application and its sign-in page.
 - Don't edit files in `tailadmin-laravel-pro` or the other framework projects unless explicitly asked — focus changes on this Free codebase.
 - Don't write inline CSS styles (`style="..."`) when Tailwind theme tokens and utility classes are available.
 
 ## Common Agent Workflows
+
+### Add a data search
+
+- Implement search behavior in JavaScript under `resources/js/` and bundle it through Vite. Use immediate filtering for data already loaded on the page.
+- For live searches that call Laravel, debounce typing by 300 ms and cancel stale requests. Keep the search responsive without reloading the page.
+
+### Navigate the codebase
+
+- Use Codebase Memory MCP first to locate symbols, trace relationships, and find relevant files in this repository.
+- Read the relevant source before editing. Use repository search when the index is unavailable, stale, or incomplete.
 
 ### Add a new admin page
 

@@ -8,6 +8,7 @@ export default (config = {}) => ({
     open: false,
     id: `ui-combobox-${++uid}`,
     value: config.value ?? null,
+    activeId: null,
     query: '',
     filtering: false,
     options: {},
@@ -18,11 +19,11 @@ export default (config = {}) => ({
     },
 
     get label() {
-        return this.value != null ? this.options[this.value] : null;
+        return this.value != null ? this.options[this.value]?.label : null;
     },
 
-    register(value, label) {
-        this.options[value] = label;
+    register(value, label, searchLabel = label) {
+        this.options[value] = { label, searchLabel };
         if (this.value === value && !this.query) this.query = label;
     },
 
@@ -31,10 +32,14 @@ export default (config = {}) => ({
     },
 
     get visibleCount() {
-        return Object.values(this.options).filter((label) => this.matches(label)).length;
+        return Object.values(this.options).filter(({ searchLabel }) => this.matches(searchLabel)).length;
     },
 
     onInput() {
+        if (config.clearOnInput && this.value != null && this.query !== this.label) {
+            this.value = null;
+            this.$dispatch('change', { value: null });
+        }
         this.filtering = true;
         if (!this.open) this.show();
         this.$nextTick(() => this.highlight(this.items()[0]));
@@ -54,24 +59,25 @@ export default (config = {}) => ({
         if (!this.open) return;
         this.open = false;
         this.filtering = false;
-        this.query = this.label ?? '';
+        if (!config.clearOnInput || this.value != null) this.query = this.label ?? '';
+        this.activeId = null;
         this.unmount();
     },
 
     pick(value) {
         this.value = value;
-        this.query = this.options[value] ?? '';
+        this.query = this.label ?? '';
         this.$dispatch('change', { value });
         this.close();
         this.$refs.input?.focus();
     },
 
-    clear() {
+    clear(focusInput = true) {
         this.value = null;
         this.query = '';
         this.filtering = false;
         this.$dispatch('change', { value: null });
-        this.$refs.input?.focus();
+        if (focusInput) this.$refs.input?.focus();
     },
 
     items() {
@@ -81,6 +87,7 @@ export default (config = {}) => ({
     highlight(item) {
         this.$refs.content?.querySelectorAll(ITEM).forEach((el) => el.removeAttribute('data-highlighted'));
         item?.setAttribute('data-highlighted', '');
+        this.activeId = item ? (item.id ||= this.id + '-option-' + item.dataset.value) : null;
         item?.scrollIntoView({ block: 'nearest' });
     },
 
