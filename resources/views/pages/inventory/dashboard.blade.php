@@ -22,7 +22,11 @@
         <ul @class(['grid grid-cols-2 gap-3 sm:gap-4', 'sm:grid-cols-4' => $role === 'warehouse', 'sm:grid-cols-3' => $role !== 'warehouse'])>
             @foreach ($metrics as [$label, $value, $url])
                 <li @class(['col-span-2 sm:col-span-1' => $role !== 'warehouse' && $loop->first])>
-                    <a href="{{ $url }}" class="flex h-full flex-col gap-2 rounded-2xl border border-gray-200 bg-white p-4 hover:border-brand-400 focus-visible:outline-brand-500 dark:border-gray-800 dark:bg-white/[0.03] dark:hover:border-brand-500 sm:p-5">
+                    <a href="{{ $url }}" @class([
+                        'flex h-full flex-col gap-2 rounded-2xl border border-gray-200 bg-white hover:border-brand-400 focus-visible:outline-brand-500 dark:border-gray-800 dark:bg-white/[0.03] dark:hover:border-brand-500 sm:p-5',
+                        'p-3' => $role === 'warehouse',
+                        'p-4' => $role !== 'warehouse',
+                    ])>
                         <span class="flex items-center justify-between gap-1 text-sm font-medium text-gray-600 dark:text-gray-300">
                             {{ __($label) }}
                             <x-svg.chevron-right class="size-4 shrink-0 text-gray-400 rtl:rotate-180 dark:text-gray-400" aria-hidden="true" />
@@ -36,11 +40,17 @@
         @switch($role)
             @case('qc')
                 <x-main.inventory.dashboard-receipts :tickets="$receipts" />
+                <x-main.inventory.qc-inspection-chart :days="$inspectionTrend" />
                 @break
             @case('warehouse')
                 <div class="grid items-start gap-5 lg:grid-cols-2">
-                    <x-main.inventory.dashboard-receipts :tickets="$receipts" warehouse />
-                    <x-main.inventory.dashboard-dispatches :tickets="$dispatches" warehouse />
+                    @if ($receipts->isEmpty() && $dispatches->isNotEmpty())
+                        <x-main.inventory.dashboard-dispatches :tickets="$dispatches" warehouse />
+                        <x-main.inventory.dashboard-receipts :tickets="$receipts" warehouse />
+                    @else
+                        <x-main.inventory.dashboard-receipts :tickets="$receipts" warehouse />
+                        <x-main.inventory.dashboard-dispatches :tickets="$dispatches" warehouse />
+                    @endif
                 </div>
                 @break
             @case('cs')

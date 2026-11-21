@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <x-common.page-breadcrumb :pageTitle="$ticket->code()" />
+    <x-common.page-breadcrumb :pageTitle="$ticket->code()" class="max-sm:[&_nav]:hidden" />
     <x-common.component-card :title="__('inventory.ticket.details')">
         <x-main.inventory.receipt-status :status="$ticket->status()" />
         <dl class="grid gap-4 sm:grid-cols-3">
@@ -19,12 +19,12 @@
 
         <x-main.inventory.ticket-lines :ticket="$ticket" :warehouse="$warehouse" />
 
-        <div class="flex flex-wrap items-center gap-3">
+        <div @class(['flex flex-wrap items-center gap-3', 'max-sm:grid max-sm:gap-2' => $warehouse])>
             @if ($warehouse)
                 @unless ($ticket->confirmed_at)
                     <form method="POST" action="{{ route('inventory.ticket.confirm', $ticket) }}">
                         @csrf
-                        <x-ui.button type="submit">{{ __('inventory.receiving.confirm') }}</x-ui.button>
+                        <x-ui.button type="submit" class="max-sm:w-full">{{ __('inventory.receiving.confirm') }}</x-ui.button>
                     </form>
                 @endunless
                 <x-ui.button as="a" :href="route('inventory.ticket.warehouse-report', $ticket)" variant="outline">{{ __('inventory.ticket.warehouse_report') }}</x-ui.button>

@@ -49,6 +49,14 @@ test('one ticket groups the SKUs for one vendor and warehouse confirms them once
     $data['inventory_vendor_id'] = $newVendor['id'];
     $this->post(route('inventory.ticket.store'), $data)->assertSessionHasNoErrors();
     expect(InventoryTicket::count())->toBe(2);
+    $this->get(route('inventory.qc'))->assertOk()->assertSee('Search receiving tickets')->assertSee(route('inventory.qc.scan'));
+    $results = ['X-Requested-With' => 'XMLHttpRequest'];
+    $this->get(route('inventory.qc', ['q' => strtolower($ticket->code())]), $results)
+        ->assertOk()->assertHeader('X-QC-Ticket-Results', '1')->assertSee($ticket->code())->assertDontSee('Zahra Production');
+    $this->get(route('inventory.qc', ['q' => 'zahra']), $results)
+        ->assertOk()->assertSee('Zahra Production')->assertDontSee($ticket->code());
+    $this->get(route('inventory.qc', ['q' => 'sj-shared', 'result' => 'failed']), $results)
+        ->assertOk()->assertSee($ticket->code())->assertSee('Zahra Production');
     expect($medium->fresh()->stock)->toBe(5)->and($large->fresh()->stock)->toBe(0);
 
     $this->actingAs($cs)->get(route('inventory.ticket.receive', $ticket))->assertForbidden();
@@ -83,11 +91,18 @@ test('warehouse can open a receiving ticket from a QR link or ticket number', fu
     $ticket = InventoryTicket::firstOrFail();
     $lookup = route('inventory.receiving.lookup');
     $detail = route('inventory.ticket.receive', $ticket);
+    $qcDetail = route('inventory.ticket.show', $ticket);
+    $qcLookup = route('inventory.qc.lookup');
     $this->get(route('inventory.receiving.scan'))->assertForbidden();
     $this->getJson($lookup.'?'.http_build_query(['q' => $ticket->code()]))->assertForbidden();
+    $this->get(route('inventory.qc.scan'))->assertOk()->assertSee('Scan QC Receiving Ticket QR');
+    $this->getJson($qcLookup.'?'.http_build_query(['q' => $detail]))->assertOk()->assertExactJson(['url' => $qcDetail]);
+    $this->get($qcLookup.'?'.http_build_query(['q' => $ticket->code()]))->assertRedirect($qcDetail);
+    $this->getJson($qcLookup.'?'.http_build_query(['q' => 'OUT-000001']))->assertUnprocessable()->assertJsonValidationErrors('q');
 
     $this->actingAs($warehouse)->get(route('inventory.receiving.scan'))->assertOk()->assertSee('data-warehouse-nav', false)
         ->assertSee('Point the camera at the receiving ticket QR.')->assertSee(route('inventory.dispatch.scan'));
+    $this->getJson($qcLookup.'?'.http_build_query(['q' => $ticket->code()]))->assertForbidden();
     $this->getJson($lookup.'?'.http_build_query(['q' => $detail]))->assertOk()->assertExactJson(['url' => $detail]);
     $this->get($lookup.'?'.http_build_query(['q' => strtolower($ticket->code())]))->assertRedirect($detail);
     $this->getJson($lookup.'?'.http_build_query(['q' => 'https://example.com/other']))->assertUnprocessable()->assertJsonValidationErrors('q');

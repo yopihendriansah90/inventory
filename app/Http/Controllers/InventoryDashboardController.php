@@ -28,19 +28,41 @@ class InventoryDashboardController extends Controller
 
     private function qc(): array
     {
-        $today = now('Asia/Jakarta')->toDateString();
-        $todayTickets = InventoryTicket::whereDate('received_on', $today);
-        $totals = InventoryReceipt::whereIn('inventory_ticket_id', (clone $todayTickets)->select('id'))
-            ->selectRaw('SUM(received_quantity) AS received, SUM(failed_quantity) AS failed')->first();
-        $failed = (int) $totals->failed;
+        $today = now('Asia/Jakarta')->toImmutable();
+        $firstDay = $today->subDays(6);
+        $dailyTotals = InventoryReceipt::join('inventory_tickets', 'inventory_tickets.id', '=', 'inventory_receipts.inventory_ticket_id')
+            ->whereDate('inventory_tickets.received_on', '>=', $firstDay->toDateString())
+            ->whereDate('inventory_tickets.received_on', '<=', $today->toDateString())
+            ->selectRaw('DATE(inventory_tickets.received_on) AS inspection_date, SUM(received_quantity) AS received, SUM(failed_quantity) AS failed')
+            ->groupByRaw('DATE(inventory_tickets.received_on)')
+            ->get()->keyBy('inspection_date');
+
+        $inspectionTrend = array_map(function (int $offset) use ($firstDay, $dailyTotals) {
+            $day = $firstDay->addDays($offset);
+            $date = $day->toDateString();
+            $totals = $dailyTotals->get($date);
+            $failed = (int) ($totals?->failed ?? 0);
+
+            return [
+                'date' => $date,
+                'label' => $day->locale(app()->getLocale())->translatedFormat('d M'),
+                'shortLabel' => $day->format('j/n'),
+                'passed' => (int) ($totals?->received ?? 0) - $failed,
+                'failed' => $failed,
+            ];
+        }, range(0, 6));
+
+        $date = $today->toDateString();
+        $current = $inspectionTrend[6];
 
         return [
             'metrics' => [
-                ['inventory.dashboard.qc.today', $todayTickets->count(), route('inventory.qc', ['date' => $today])],
-                ['inventory.dashboard.qc.passed', (int) $totals->received - $failed, route('inventory.qc', ['date' => $today, 'result' => 'passed'])],
-                ['inventory.dashboard.qc.failed', $failed, route('inventory.qc', ['date' => $today, 'result' => 'failed'])],
+                ['inventory.dashboard.qc.today', InventoryTicket::whereDate('received_on', $date)->count(), route('inventory.qc', ['date' => $date])],
+                ['inventory.dashboard.qc.passed', $current['passed'], route('inventory.qc', ['date' => $date, 'result' => 'passed'])],
+                ['inventory.dashboard.qc.failed', $current['failed'], route('inventory.qc', ['date' => $date, 'result' => 'failed'])],
             ],
             'receipts' => InventoryTicket::with('vendor', 'lines')->latest('id')->limit(5)->get(),
+            'inspectionTrend' => $inspectionTrend,
         ];
     }
 

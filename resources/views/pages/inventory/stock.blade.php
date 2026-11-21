@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <x-common.page-breadcrumb :pageTitle="__('inventory.stock.title')" />
+    <x-common.page-breadcrumb :pageTitle="__('inventory.stock.title')" class="max-sm:[&_nav]:hidden" />
     @can('request-dispatch')
         <div class="mb-4 flex flex-wrap justify-end gap-3">
             <x-ui.button as="a" :href="route('inventory.dispatch.index')" variant="outline">{{ __('inventory.dispatch.tracking') }}</x-ui.button>

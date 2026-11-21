@@ -15,15 +15,17 @@ use Illuminate\View\View;
 
 class InventoryController extends Controller
 {
-    public function qc(Request $request): View
+    public function qc(Request $request): View|Response
     {
-        $filters = $request->validate([
+        $filters = $request->validateWithBag('qcFilters', [
             'sku' => ['nullable', 'string', 'max:80'],
             'date' => ['nullable', 'date_format:Y-m-d'],
             'result' => ['nullable', 'in:passed,failed'],
+            'q' => ['nullable', 'string', 'max:100'],
         ]);
         $date = $filters['date'] ?? null;
         $result = $filters['result'] ?? null;
+        $search = $filters['q'] ?? '';
         $tickets = InventoryTicket::with('vendor', 'lines')->latest('id')
             ->when($date, fn ($query) => $query->whereDate('received_on', $date));
 
@@ -33,11 +35,34 @@ class InventoryController extends Controller
             default => null,
         };
 
+        if ($search !== '') {
+            $number = preg_match('/\A(?:QC-)?([0-9]{1,19})\z/i', $search, $matches) ? $matches[1] : null;
+            $term = '%'.str_replace(['!', '%', '_'], ['!!', '!%', '!_'], Str::lower($search)).'%';
+            $tickets->where(function ($query) use ($number, $term) {
+                $query->whereRaw("LOWER(reference) LIKE ? ESCAPE '!'", [$term])
+                    ->orWhereHas('vendor', fn ($vendor) => $vendor->whereRaw("LOWER(name) LIKE ? ESCAPE '!'", [$term]));
+
+                if ($number !== null) {
+                    $query->orWhere('id', $number);
+                }
+            });
+        }
+
+        $tickets = $tickets->paginate(15, ['*'], 'tickets')->withQueryString();
+        if ($request->ajax()) {
+            return response()->view('components.main.inventory.tickets-table', compact('tickets'), 200, [
+                'X-QC-Ticket-Results' => '1',
+                'Vary' => 'X-Requested-With',
+                'Cache-Control' => 'private, no-store',
+            ]);
+        }
+
         return view('pages.inventory.qc', [
             'variants' => InventoryVariant::orderBy('model')->orderBy('color')->orderBy('size')->get(),
             'vendors' => InventoryVendor::orderBy('name')->get(),
             'selectedSku' => $filters['sku'] ?? null,
-            'tickets' => $tickets->paginate(15, ['*'], 'tickets')->withQueryString(),
+            'tickets' => $tickets,
+            'search' => $search,
             'date' => $date,
             'result' => $result,
         ]);

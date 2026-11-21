@@ -1,4 +1,8 @@
-@php($warehouseNavigation = request()->routeIs('inventory.*') && auth()->user()?->can('receive-stock'))
+@php
+    $inventoryPage = request()->routeIs('inventory.*');
+    $warehouseNavigation = $inventoryPage && auth()->user()?->can('receive-stock');
+    $mobileNavigation = $warehouseNavigation || ($inventoryPage && auth()->user()?->can('record-qc'));
+@endphp
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}" dir="ltr" class="h-full bg-gray-50 dark:bg-gray-900">
 
@@ -9,7 +13,7 @@
         })();
     </script>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1{{ $warehouseNavigation ? ', viewport-fit=cover' : '' }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1{{ $mobileNavigation ? ', viewport-fit=cover' : '' }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     @include('layouts.head-meta')
@@ -141,7 +145,7 @@
     <x-common.notifications />
 
     <div class="min-h-screen xl:flex sidebar-expanded" x-data :class="{ 'sidebar-expanded': $store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen }">
-        @if ($warehouseNavigation)
+        @if ($mobileNavigation)
             <div class="hidden xl:contents">
                 @include('layouts.sidebar')
             </div>
@@ -156,15 +160,16 @@
             @include(request()->routeIs('inventory.*') ? 'components.main.inventory.header' : 'layouts.app-header')
             <!-- app header end -->
             <div @class(['mx-auto max-w-(--breakpoint-2xl) p-4 md:px-6 md:pt-6',
-                'pb-[calc(5.5rem+env(safe-area-inset-bottom))] xl:pb-6' => $warehouseNavigation,
-                'md:pb-6' => ! $warehouseNavigation])>
+                'pb-[calc(5.5rem+env(safe-area-inset-bottom))] xl:pb-6' => $mobileNavigation,
+                'max-sm:px-3' => $warehouseNavigation,
+                'md:pb-6' => ! $mobileNavigation])>
                 @yield('content')
             </div>
         </div>
 
     </div>
-    @if ($warehouseNavigation)
-        <x-main.inventory.warehouse-navigation />
+    @if ($mobileNavigation)
+        <x-main.inventory.mobile-navigation :warehouse="$warehouseNavigation" :draft="$__env->hasSection('inventory-draft')" />
     @endif
 
 </body>

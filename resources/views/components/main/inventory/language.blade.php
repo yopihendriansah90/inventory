@@ -1,4 +1,4 @@
-@props(['compact' => false])
+@props(['compact' => false, 'variant' => 'outline'])
 
 @php
     $languages = ['en' => 'English', 'id' => 'Bahasa Indonesia'];
@@ -16,14 +16,14 @@
                     <option value="{{ $code }}" lang="{{ $code }}" @selected($locale === $code)>{{ $label }}</option>
                 @endforeach
             </select>
-            <x-ui.button type="submit" size="sm" variant="outline">{{ __('inventory.language.apply') }}</x-ui.button>
+            <x-ui.button type="submit" size="sm" :variant="$variant">{{ __('inventory.language.apply') }}</x-ui.button>
         </noscript>
     </form>
 
     <div x-cloak>
         <x-ui.dropdown-menu>
             <x-ui.dropdown-menu.trigger as-child>
-                <x-ui.button variant="outline" size="sm" :aria-label="__('inventory.language').': '.$languages[$locale]">
+                <x-ui.button :variant="$variant" size="sm" :aria-label="__('inventory.language').': '.$languages[$locale]">
                     <x-svg.globe class="size-4" aria-hidden="true" />
                     <span lang="{{ $locale }}" @class(['hidden sm:inline' => $compact])>{{ $languages[$locale] }}</span>
                     <x-svg.chevron-down class="size-4" aria-hidden="true" />

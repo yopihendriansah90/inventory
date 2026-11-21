@@ -5,7 +5,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-test('demo accounts sign in to their role dashboard and can only open permitted pages', function ($email, $dashboardTitle, $allowed) {
+test('demo accounts sign in to their role dashboard and can only open permitted pages', function ($email, $dashboardTitle, $allowed, $mobileNav) {
     $this->seed(InventoryDemoSeeder::class);
 
     $this->get(route('inventory.home'))->assertRedirect(route('signin'));
@@ -15,6 +15,11 @@ test('demo accounts sign in to their role dashboard and can only open permitted 
         ->assertRedirect(route('inventory.home'));
 
     $workspace = $this->get(route('inventory.home'))->assertOk()->assertSee($dashboardTitle);
+    if ($mobileNav) {
+        $workspace->assertSee($mobileNav, false);
+    } else {
+        $workspace->assertDontSee('data-qc-nav', false)->assertDontSee('data-warehouse-nav', false);
+    }
     foreach (['qc', 'receiving', 'stock'] as $page) {
         $url = route('inventory.'.$page);
         if (in_array($page, $allowed, true)) {
@@ -30,9 +35,9 @@ test('demo accounts sign in to their role dashboard and can only open permitted 
     $this->assertGuest();
     $this->get(route('inventory.home'))->assertRedirect(route('signin'));
 })->with([
-    'QC' => ['qc@mail.com', 'QC Dashboard', ['qc']],
-    'warehouse' => ['gudang@mail.com', 'Warehouse Dashboard', ['receiving', 'stock']],
-    'CS' => ['cs@mail.com', 'Customer Service Dashboard', ['stock']],
+    'QC' => ['qc@mail.com', 'QC Dashboard', ['qc'], 'data-qc-nav'],
+    'warehouse' => ['gudang@mail.com', 'Warehouse Dashboard', ['receiving', 'stock'], 'data-warehouse-nav'],
+    'CS' => ['cs@mail.com', 'Customer Service Dashboard', ['stock'], null],
 ]);
 
 test('a wrong password keeps the user signed out', function () {

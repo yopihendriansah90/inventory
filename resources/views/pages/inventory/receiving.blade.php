@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <x-common.page-breadcrumb :pageTitle="__('inventory.receiving.title')" />
+    <x-common.page-breadcrumb :pageTitle="__('inventory.receiving.title')" class="max-sm:[&_nav]:hidden" />
     <x-common.component-card :title="__('inventory.receiving.card')">
         @if ($pending)
             <div class="flex flex-wrap items-center gap-3">

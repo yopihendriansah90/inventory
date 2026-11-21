@@ -13,7 +13,7 @@
         ])->filter(fn ($item) => ! isset($item['ability']) || auth()->user()->can($item['ability']))->map(fn ($item) => $item + [
             'path' => route($item['route'], absolute: false),
             'active' => request()->routeIs($item['route']) || match ($item['route']) {
-                'inventory.qc' => request()->routeIs('inventory.ticket.show'),
+                'inventory.qc' => request()->routeIs('inventory.ticket.show', 'inventory.qc.scan'),
                 'inventory.receiving' => request()->routeIs('inventory.receiving.scan', 'inventory.ticket.receive'),
                 'inventory.dispatch.index' => request()->routeIs('inventory.dispatch.*'),
                 default => false,

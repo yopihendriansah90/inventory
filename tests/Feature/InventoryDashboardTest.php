@@ -31,6 +31,14 @@ test('role dashboards open filtered queues and show current inventory totals', f
 
     $this->get(route('inventory.home'))->assertOk()
         ->assertViewHas('metrics', fn ($metrics) => array_column($metrics, 1) === [1, 6, 2])
+        ->assertViewHas('inspectionTrend', fn ($days) => count($days) === 7
+            && $days[6]['date'] === $today
+            && array_column($days, 'passed') === [0, 0, 0, 0, 0, 6, 6]
+            && array_column($days, 'failed') === [0, 0, 0, 0, 0, 2, 2])
+        ->assertSeeInOrder(['Recent inspections', 'Inspections over the last 7 days'])
+        ->assertSee('aria-label="Recent inspections"', false)
+        ->assertSee('datetime="'.$today.'"', false)
+        ->assertSee('aria-label="Open ticket '.$ticket->code().'"', false)
         ->assertSee($ticket->code());
     $this->get(route('inventory.qc', ['date' => $today, 'result' => 'failed']))
         ->assertOk()->assertSee('TODAY-INSPECTION')->assertDontSee('PAST-INSPECTION');
@@ -50,6 +58,7 @@ test('role dashboards open filtered queues and show current inventory totals', f
     $dispatch = InventoryDispatch::firstOrFail();
     $this->get(route('inventory.home'))->assertOk()
         ->assertViewHas('metrics', fn ($metrics) => array_column($metrics, 1) === [8, 3, 11])
+        ->assertDontSee('data-dashboard-chart="qc-inspection"', false)
         ->assertSee($dispatch->code())
         ->assertDontSee('081200000011');
     $this->get(route('inventory.stock', ['preview' => 1, 'q' => $variant->displaySku()]), ['X-Requested-With' => 'XMLHttpRequest'])
@@ -58,6 +67,7 @@ test('role dashboards open filtered queues and show current inventory totals', f
     $this->actingAs($warehouse)->post(route('inventory.dispatch.advance', [$dispatch, 'start']))->assertSessionHasNoErrors();
     $this->post(route('inventory.dispatch.advance', [$dispatch, 'pack']))->assertSessionHasNoErrors();
     $this->get(route('inventory.home'))->assertOk()->assertSee('Dispatch queue')
+        ->assertDontSee('aria-label="Recent inspections"', false)
         ->assertViewHas('metrics', fn ($metrics) => array_column($metrics, 1) === [1, 0, 0, 1])
         ->assertSee(route('inventory.dispatch.index', ['status' => InventoryDispatch::READY]))
         ->assertSee($dispatch->code());

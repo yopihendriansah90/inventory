@@ -9,6 +9,10 @@ return [
         'title' => 'inventory.meta.qc.title',
         'description' => 'inventory.meta.qc.description',
     ],
+    '/inventory/qc/scan' => [
+        'title' => 'inventory.qc.scan_title',
+        'description' => 'inventory.qc.scan_aim',
+    ],
     '/inventory/receiving' => [
         'title' => 'inventory.meta.receiving.title',
         'description' => 'inventory.meta.receiving.description',

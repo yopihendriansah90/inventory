@@ -9,9 +9,9 @@
             <p class="wrap-anywhere text-sm text-gray-600 dark:text-gray-300">{{ $variant->displaySku() }} · {{ $variant->color }} · {{ $variant->size }}</p>
             <dl class="mt-3 grid grid-cols-3 gap-2 border-t border-gray-200 pt-3 text-sm dark:border-gray-700">
                 @foreach ($stockColumns as $column => $attribute)
-                    <div>
+                    <div class="flex min-w-0 flex-col gap-1">
                         <dt class="text-gray-600 dark:text-gray-300">{{ __('inventory.dispatch.stock.'.$column) }}</dt>
-                        <dd class="font-semibold tabular-nums text-gray-900 dark:text-white">
+                        <dd class="mt-auto font-semibold tabular-nums text-gray-900 dark:text-white">
                             {{ __('inventory.units', ['count' => $attribute ? $variant->{$attribute} : $variant->availableStock()]) }}
                         </dd>
                     </div>

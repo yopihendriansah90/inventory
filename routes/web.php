@@ -21,6 +21,8 @@ Route::middleware(SetInventoryLocale::class, 'auth')->prefix('inventory')->name(
 
     Route::middleware('can:record-qc')->group(function () {
         Route::get('/qc', [InventoryController::class, 'qc'])->name('qc');
+        Route::view('/qc/scan', 'pages.inventory.scan', ['qc' => true])->name('qc.scan');
+        Route::get('/qc/lookup', [InventoryTicketController::class, 'lookup'])->name('qc.lookup');
         Route::post('/qc/tickets', [InventoryTicketController::class, 'store'])->name('ticket.store');
         Route::get('/qc/tickets/{ticket}', [InventoryTicketController::class, 'show'])->name('ticket.show');
         Route::get('/qc/tickets/{ticket}/report/{copy}', [InventoryTicketController::class, 'report'])

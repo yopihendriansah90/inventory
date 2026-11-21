@@ -1,11 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
-    <x-common.page-breadcrumb :pageTitle="$ticket->code()" />
+    <x-common.page-breadcrumb :pageTitle="$ticket->code()" class="max-sm:[&_nav]:hidden" />
 
     @php
         $action = $ticket->warehouseAction();
-        $packing = $action === 'pack' && auth()->user()->can('receive-stock');
+        $itemsFirst = auth()->user()->can('receive-stock') && in_array($action, ['start', 'pack'], true);
+        $packing = $itemsFirst && $action === 'pack';
     @endphp
     <div class="mx-auto max-w-6xl space-y-5">
         @if ($justCreated)
@@ -75,7 +76,7 @@
 
         <div class="grid items-start gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
             <div class="min-w-0 space-y-5">
-                @if ($packing)
+                @if ($itemsFirst)
                     <x-main.inventory.dispatch-items :lines="$ticket->lines" />
                 @endif
                 <x-common.component-card :title="__('inventory.dispatch.recipient_details')">
@@ -89,7 +90,7 @@
                     </dl>
                 </x-common.component-card>
 
-                @unless ($packing)
+                @unless ($itemsFirst)
                     <x-main.inventory.dispatch-items :lines="$ticket->lines" />
                 @endunless
             </div>

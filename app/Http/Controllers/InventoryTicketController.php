@@ -80,21 +80,24 @@ class InventoryTicketController extends Controller
     public function lookup(Request $request): JsonResponse|RedirectResponse
     {
         $value = $request->validate(['q' => ['required', 'string', 'max:2048']])['q'];
+        $qc = $request->routeIs('inventory.qc.lookup');
         $ticketPath = Str::beforeLast(route('inventory.ticket.receive', ['ticket' => 'id'], absolute: false), '/');
         $id = InventoryQr::ticketId($value, 'QC', $ticketPath);
 
         if ($id === null) {
-            throw ValidationException::withMessages(['q' => __('inventory.scan.invalid')]);
+            throw ValidationException::withMessages(['q' => __($qc ? 'inventory.qc.scan_invalid' : 'inventory.scan.invalid')]);
         }
 
-        $ticket = InventoryTicket::whereKey($id)->whereHas('passedLines')->first();
+        $ticket = InventoryTicket::whereKey($id)->when(! $qc, fn ($query) => $query->whereHas('passedLines'))->first();
         if (! $ticket) {
             throw ValidationException::withMessages(['q' => __('inventory.scan.not_found')]);
         }
 
+        $route = $qc ? 'inventory.ticket.show' : 'inventory.ticket.receive';
+
         return $request->expectsJson()
-            ? response()->json(['url' => route('inventory.ticket.receive', $ticket)])
-            : to_route('inventory.ticket.receive', $ticket);
+            ? response()->json(['url' => route($route, $ticket)])
+            : to_route($route, $ticket);
     }
 
     private function details(InventoryTicket $ticket, bool $warehouse): View

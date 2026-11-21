@@ -2,7 +2,7 @@
 
 @section('content')
     @php($heading = auth()->user()->can('request-dispatch') ? 'inventory.dispatch.tracking' : 'inventory.dispatch.title')
-    <x-common.page-breadcrumb :pageTitle="__($heading)" />
+    <x-common.page-breadcrumb :pageTitle="__($heading)" class="max-sm:[&_nav]:hidden" />
 
     <x-common.component-card :title="__('inventory.dispatch.list')">
         <div x-data="stockSearch(@js($search), 'X-Dispatch-Results')">
@@ -14,11 +14,11 @@
             @endif
             <div class="mb-5 flex flex-wrap items-end justify-between gap-3">
                 <form method="GET" action="{{ route('inventory.dispatch.index') }}" x-ref="form" x-on:submit.prevent="search()"
-                    data-search-error="{{ __('inventory.search.error') }}" class="flex w-full flex-wrap items-end gap-3 sm:w-auto">
+                    data-search-error="{{ __('inventory.search.error') }}" class="grid w-full grid-cols-2 items-end gap-2 sm:flex sm:w-auto sm:flex-wrap sm:gap-3">
                     @if ($status)
                         <input type="hidden" name="status" value="{{ $status }}">
                     @endif
-                    <div class="min-w-56 grow">
+                    <div class="col-span-2 min-w-0 sm:min-w-56 sm:grow">
                         <label for="dispatch-search" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
                             {{ __('inventory.dispatch.search') }}
                         </label>
@@ -26,18 +26,19 @@
                             :value="$search" :placeholder="__('inventory.dispatch.search_placeholder')" maxlength="100" />
                         <x-main.inventory.field-error name="q" />
                     </div>
-                    <x-ui.button type="submit" variant="outline">{{ __('inventory.search.action') }}</x-ui.button>
-                    <x-ui.button type="button" variant="outline" x-cloak x-show="hasQuery" x-on:click="clear()">
+                    <x-ui.button type="submit" variant="outline" :class="auth()->user()->can('request-dispatch') ? 'h-11 max-sm:col-span-2' : 'h-11'">{{ __('inventory.search.action') }}</x-ui.button>
+                    <x-ui.button type="button" variant="ghost" x-cloak x-show="hasQuery" x-on:click="clear()" class="max-sm:order-last max-sm:col-span-2">
                         {{ __('inventory.search.clear') }}
                     </x-ui.button>
+                    @can('receive-stock')
+                        <x-ui.button as="a" :href="route('inventory.dispatch.scan')" class="h-11 max-sm:whitespace-normal">
+                            <x-svg.qr-scan class="size-5" aria-hidden="true" />
+                            {{ __('inventory.warehouse.scan') }}
+                        </x-ui.button>
+                    @endcan
                 </form>
                 @can('request-dispatch')
                     <x-ui.button as="a" :href="route('inventory.dispatch.create')">{{ __('inventory.dispatch.create') }}</x-ui.button>
-                @else
-                    <x-ui.button as="a" :href="route('inventory.dispatch.scan')">
-                        <x-svg.qr-scan class="size-5" aria-hidden="true" />
-                        {{ __('inventory.dispatch.scan') }}
-                    </x-ui.button>
                 @endcan
             </div>
 
