@@ -100,11 +100,12 @@
                 <p class="text-sm text-gray-600 dark:text-gray-300">{{ __('inventory.dispatch.print_after_save') }}</p>
             </section>
 
-            <div class="flex flex-wrap justify-end gap-3 border-t border-gray-200 pt-4 dark:border-gray-700">
-                <x-ui.button as="a" :href="route('inventory.dispatch.index')" variant="outline" x-cloak="x-cloak" x-show="step === 1">{{ __('inventory.dispatch.back') }}</x-ui.button>
-                <x-ui.button variant="outline" x-cloak="x-cloak" x-show="step > 1" x-on:click="goTo(step - 1)">{{ __('inventory.ticket.back') }}</x-ui.button>
-                <x-ui.button x-cloak="x-cloak" x-show="step < 3" x-on:click="next()">{{ __('inventory.ticket.next') }}</x-ui.button>
-                <x-ui.button type="submit" x-cloak="x-cloak" x-show="step === 3">{{ __('inventory.dispatch.submit') }}</x-ui.button>
+            <div class="inventory-form-actions flex gap-2 sm:flex-wrap sm:justify-end sm:gap-3 sm:border-t sm:border-gray-200 sm:pt-4 sm:dark:border-gray-700">
+                <x-ui.button as="a" :href="route('inventory.dispatch.index')" variant="outline" class="min-h-11 max-sm:min-w-0 max-sm:shrink max-sm:whitespace-normal"
+                    x-cloak="x-cloak" x-show="step === 1">{{ __('inventory.dispatch.back') }}</x-ui.button>
+                <x-ui.button variant="outline" class="min-h-11" x-cloak="x-cloak" x-show="step > 1" x-on:click="goTo(step - 1)">{{ __('inventory.ticket.back') }}</x-ui.button>
+                <x-ui.button class="min-h-11 max-sm:flex-1" x-cloak="x-cloak" x-show="step < 3" x-on:click="next()">{{ __('inventory.ticket.next') }}</x-ui.button>
+                <x-ui.button type="submit" class="min-h-11 max-sm:flex-1" x-cloak="x-cloak" x-show="step === 3">{{ __('inventory.dispatch.submit') }}</x-ui.button>
             </div>
         </form>
     </x-common.component-card>

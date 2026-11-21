@@ -1,10 +1,13 @@
 @php
     $inventoryPage = request()->routeIs('inventory.*');
-    $warehouseNavigation = $inventoryPage && auth()->user()?->can('receive-stock');
-    $mobileNavigation = $warehouseNavigation || ($inventoryPage && auth()->user()?->can('record-qc'));
+    $inventoryRole = $inventoryPage ? auth()->user()?->role : null;
+    $mobileNavigation = in_array($inventoryRole, ['qc', 'warehouse', 'cs'], true);
+    $qcDraft = $inventoryRole === 'qc' && $__env->hasSection('inventory-draft');
+    $inventoryFormDraft = $qcDraft || request()->routeIs('inventory.dispatch.create');
 @endphp
 <!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}" dir="ltr" class="h-full bg-gray-50 dark:bg-gray-900">
+<html lang="{{ app()->getLocale() }}" dir="ltr" @if ($mobileNavigation) data-inventory-mobile-shell @endif
+    @if ($inventoryFormDraft) data-inventory-form-draft @endif class="h-full bg-gray-50 dark:bg-gray-900">
 
 <head>
     <script>
@@ -13,7 +16,7 @@
         })();
     </script>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1{{ $mobileNavigation ? ', viewport-fit=cover' : '' }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1{{ $mobileNavigation ? ', viewport-fit=cover, interactive-widget=resizes-content' : '' }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     @include('layouts.head-meta')
@@ -157,11 +160,11 @@
         {{-- transition-all duration-300 ease-in-out --}}
         <div class="flex-1 min-w-0 ml-0 ltr:xl:ml-[90px] rtl:xl:ml-0 rtl:xl:mr-[90px] [.sidebar-expanded_&]:ltr:xl:ml-[290px] [.sidebar-expanded_&]:rtl:xl:ml-0 [.sidebar-expanded_&]:rtl:xl:mr-[290px] transition-all duration-300 ease-in-out">
             <!-- app header start -->
-            @include(request()->routeIs('inventory.*') ? 'components.main.inventory.header' : 'layouts.app-header')
+            @include($inventoryPage ? 'components.main.inventory.header' : 'layouts.app-header')
             <!-- app header end -->
             <div @class(['mx-auto max-w-(--breakpoint-2xl) p-4 md:px-6 md:pt-6',
-                'pb-[calc(5.5rem+env(safe-area-inset-bottom))] xl:pb-6' => $mobileNavigation,
-                'max-sm:px-3' => $warehouseNavigation,
+                'max-xl:pt-[calc(var(--inventory-top-space)+1rem)] md:max-xl:pt-[calc(var(--inventory-top-space)+1.5rem)] max-xl:pb-[calc(var(--inventory-bottom-space)+1rem)] xl:pb-6' => $mobileNavigation,
+                'max-sm:px-3' => $mobileNavigation,
                 'md:pb-6' => ! $mobileNavigation])>
                 @yield('content')
             </div>
@@ -169,7 +172,7 @@
 
     </div>
     @if ($mobileNavigation)
-        <x-main.inventory.mobile-navigation :warehouse="$warehouseNavigation" :draft="$__env->hasSection('inventory-draft')" />
+        <x-main.inventory.mobile-navigation :role="$inventoryRole" :draft="$qcDraft" />
     @endif
 
 </body>

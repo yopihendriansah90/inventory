@@ -1,4 +1,9 @@
 {
+    "inventory.cs.nav": "Navigasi CS",
+    "inventory.cs.nav_tracking": "Pelacakan",
+    "inventory.cs.nav_create": "Buat Permintaan",
+    "inventory.qc.step_items_short": "Barang",
+    "inventory.qc.step_review_short": "Tinjau",
     "inventory.qc.nav": "Navigasi QC",
     "inventory.qc.nav_tickets": "Tiket QC",
     "inventory.qc.nav_create": "Buat Tiket",

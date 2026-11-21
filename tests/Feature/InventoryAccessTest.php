@@ -15,11 +15,9 @@ test('demo accounts sign in to their role dashboard and can only open permitted 
         ->assertRedirect(route('inventory.home'));
 
     $workspace = $this->get(route('inventory.home'))->assertOk()->assertSee($dashboardTitle);
-    if ($mobileNav) {
-        $workspace->assertSee($mobileNav, false);
-    } else {
-        $workspace->assertDontSee('data-qc-nav', false)->assertDontSee('data-warehouse-nav', false);
-    }
+    $workspace->assertSee($mobileNav, false)
+        ->assertSee('data-inventory-topbar', false)
+        ->assertSee('data-inventory-mobile-nav', false);
     foreach (['qc', 'receiving', 'stock'] as $page) {
         $url = route('inventory.'.$page);
         if (in_array($page, $allowed, true)) {
@@ -37,7 +35,7 @@ test('demo accounts sign in to their role dashboard and can only open permitted 
 })->with([
     'QC' => ['qc@mail.com', 'QC Dashboard', ['qc'], 'data-qc-nav'],
     'warehouse' => ['gudang@mail.com', 'Warehouse Dashboard', ['receiving', 'stock'], 'data-warehouse-nav'],
-    'CS' => ['cs@mail.com', 'Customer Service Dashboard', ['stock'], null],
+    'CS' => ['cs@mail.com', 'Customer Service Dashboard', ['stock'], 'data-cs-nav'],
 ]);
 
 test('a wrong password keeps the user signed out', function () {

@@ -1,4 +1,9 @@
 {
+    "inventory.cs.nav": "Customer service navigation",
+    "inventory.cs.nav_tracking": "Tracking",
+    "inventory.cs.nav_create": "New Request",
+    "inventory.qc.step_items_short": "Items",
+    "inventory.qc.step_review_short": "Review",
     "inventory.qc.nav": "QC navigation",
     "inventory.qc.nav_tickets": "QC Tickets",
     "inventory.qc.nav_create": "New Ticket",

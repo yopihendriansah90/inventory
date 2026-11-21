@@ -1440,3 +1440,32 @@ pre[class*='language-'].line-numbers {
 .swal2-popup.app-notification-toast {
   @apply rounded-xl shadow-theme-lg;
 }
+
+@media (width < 1280px) {
+  [data-inventory-mobile-shell] {
+    --inventory-viewport-top: 0px;
+    --inventory-viewport-bottom: 0px;
+    --inventory-topbar-height: calc(4.0625rem + env(safe-area-inset-top));
+    --inventory-nav-height: calc(4.5rem + env(safe-area-inset-bottom));
+    --inventory-top-space: calc(var(--inventory-topbar-height) + var(--inventory-viewport-top));
+    --inventory-bottom-space: calc(var(--inventory-nav-height) + var(--inventory-viewport-bottom));
+    --inventory-focus-bottom: var(--inventory-bottom-space);
+    scroll-padding-block: calc(var(--inventory-top-space) + 0.5rem) calc(var(--inventory-focus-bottom) + 0.5rem);
+  }
+}
+
+@media (width < 640px) {
+  [data-inventory-form-draft] {
+    --inventory-focus-bottom: calc(var(--inventory-bottom-space) + 3.75rem);
+  }
+
+  [data-inventory-mobile-shell] :is(input, select, textarea) {
+    font-size: max(1rem, 16px);
+  }
+
+  .inventory-form-actions {
+    position: sticky;
+    inset-block-end: var(--inventory-bottom-space);
+    @apply z-10 -mx-4 rounded-b-2xl border-t border-gray-200 bg-white px-4 py-2 dark:border-gray-800 dark:bg-gray-900;
+  }
+}

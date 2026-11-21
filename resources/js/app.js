@@ -6,6 +6,7 @@ import "./bootstrap";
 import initCharts from "./components/chart";
 import registerUi from "./ui";
 import inventoryQc from "./components/inventory/qc";
+import initializeInventoryViewport from "./components/inventory/mobile-viewport";
 import dispatchForm from "./components/inventory/dispatch-form";
 import stockSearch from "./components/inventory/stock-search";
 import warehouseScanner from "./components/inventory/warehouse-scanner";
@@ -90,6 +91,7 @@ Alpine.store("direction", {
 
 Alpine.start();
 initializeNotifications();
+initializeInventoryViewport();
 
 
 // Initialize components on DOM ready

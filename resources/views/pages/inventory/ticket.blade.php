@@ -4,13 +4,13 @@
     <x-common.page-breadcrumb :pageTitle="$ticket->code()" class="max-sm:[&_nav]:hidden" />
     <x-common.component-card :title="__('inventory.ticket.details')">
         <x-main.inventory.receipt-status :status="$ticket->status()" />
-        <dl class="grid gap-4 sm:grid-cols-3">
+        <dl @class(['grid gap-4 sm:grid-cols-3', 'max-sm:grid-cols-2' => ! $warehouse])>
             @foreach ([
                 'vendor' => $ticket->vendor->option()['label'],
                 'reference' => $ticket->reference,
                 'date' => $ticket->received_on->locale(app()->getLocale())->translatedFormat('d M Y'),
             ] as $key => $value)
-                <div>
+                <div @class(['min-w-0', 'max-sm:col-span-2' => ! $warehouse && $key === 'vendor'])>
                     <dt class="text-sm text-gray-600 dark:text-gray-300">{{ __('inventory.column.'.$key) }}</dt>
                     <dd class="wrap-anywhere font-medium text-gray-900 dark:text-white">{{ $value }}</dd>
                 </div>

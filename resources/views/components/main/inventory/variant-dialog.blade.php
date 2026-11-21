@@ -24,7 +24,7 @@
                 <div>
                     <label for="variant-{{ $field }}" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __($vendor ? 'inventory.ticket.vendor_name' : 'inventory.column.'.$field) }}</label>
                     <x-main.inventory.input :name="$field" :id="'variant-'.$field" :value="is_string(old($field)) ? old($field) : ''"
-                        :list="'known-'.$field.'s'" :maxlength="$limit" required
+                        :list="'known-'.$field.'s'" :maxlength="$limit" class="max-sm:text-base" required
                         x-bind:aria-invalid="variantErrors[$el.name]?.length ? 'true' : null"
                         :aria-describedby="'variant-'.$field.'-error'" />
                     @unless ($vendor)
@@ -41,9 +41,9 @@
             @endforeach
             <x-ui.dialog.footer>
                 <x-ui.dialog.close as-child>
-                    <x-ui.button variant="outline">{{ __('inventory.variant.cancel') }}</x-ui.button>
+                    <x-ui.button variant="outline" class="min-h-11">{{ __('inventory.variant.cancel') }}</x-ui.button>
                 </x-ui.dialog.close>
-                <x-ui.button type="submit" x-bind:disabled="savingVariant">
+                <x-ui.button type="submit" class="min-h-11" x-bind:disabled="savingVariant">
                     <span x-show="!savingVariant">{{ __($vendor ? 'inventory.ticket.vendor_save' : 'inventory.variant.save') }}</span>
                     <span x-cloak x-show="savingVariant">{{ __('inventory.variant.saving') }}</span>
                 </x-ui.button>

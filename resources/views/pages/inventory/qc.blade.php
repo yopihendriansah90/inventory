@@ -5,12 +5,13 @@
 @endif
 
 @section('content')
-    <x-common.page-breadcrumb :pageTitle="__('inventory.qc.title')" class="max-sm:[&_nav]:hidden" />
+    <x-common.page-breadcrumb :pageTitle="__($__env->hasSection('inventory-draft') ? 'inventory.qc.form' : 'inventory.qc.title')"
+        class="max-sm:mb-4! max-sm:[&_nav]:hidden" />
 
-    <div class="space-y-6">
+    <div class="space-y-4 sm:space-y-6">
         @hasSection('inventory-draft')
-            <x-ui.button as="a" :href="route('inventory.qc')" variant="outline">{{ __('inventory.ticket.back_to_list') }}</x-ui.button>
-            <x-common.component-card id="inspection" class="scroll-mt-28" :title="__('inventory.qc.form')">
+            <x-ui.button as="a" :href="route('inventory.qc')" variant="ghost" class="min-h-11">{{ __('inventory.ticket.back_to_list') }}</x-ui.button>
+            <x-common.component-card id="inspection" class="xl:scroll-mt-28">
                 <x-main.inventory.qc-form :variants="$variants" :vendors="$vendors" :selected-sku="$selectedSku" />
             </x-common.component-card>
         @else
@@ -41,7 +42,7 @@
                                 <label for="qc-ticket-search" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('inventory.qc.search') }}</label>
                                 <div class="relative">
                                     <x-main.inventory.input id="qc-ticket-search" type="search" name="q" :value="$search" :placeholder="__('inventory.qc.search_placeholder')"
-                                        class="pe-11 [&::-webkit-search-cancel-button]:hidden sm:pe-3"
+                                        class="pe-11 [&::-webkit-search-cancel-button]:hidden max-sm:text-base sm:pe-3"
                                         maxlength="100" x-ref="input" x-on:input="schedule()" />
                                     <x-ui.button x-cloak="x-cloak" x-show="hasQuery" type="button" variant="ghost" size="icon-sm"
                                         class="absolute inset-y-0 end-1 my-auto sm:hidden" :aria-label="__('inventory.search.clear')" x-on:click="clear()">

@@ -40,8 +40,9 @@
     ];
 @endphp
 
-<div x-data="inventoryQc(@js($pickerConfig))" class="space-y-5">
-    <x-main.inventory.ticket-steps :labels="['inventory.ticket.vendor_step', 'inventory.ticket.items_step', 'inventory.ticket.review_step']" />
+<div x-data="inventoryQc(@js($pickerConfig))" class="space-y-4 max-sm:[&_input:not([type=hidden])]:text-base sm:space-y-5">
+    <x-main.inventory.ticket-steps :labels="['inventory.ticket.vendor_step', 'inventory.ticket.items_step', 'inventory.ticket.review_step']"
+        :compact-labels="['inventory.column.vendor', 'inventory.qc.step_items_short', 'inventory.qc.step_review_short']" />
 
     @if ($errors->any())
         <ul class="list-disc space-y-1 ps-5 text-sm text-error-700 dark:text-error-300">
@@ -58,69 +59,98 @@
     </form>
 
     <section x-cloak x-show="step === 1" data-ticket-step="1" class="space-y-4">
-        <h3 tabindex="-1" class="text-base font-semibold text-gray-900 dark:text-white">{{ __('inventory.ticket.vendor_step') }}</h3>
+        <h3 tabindex="-1" class="text-base font-semibold text-gray-900 xl:scroll-mt-24 dark:text-white">{{ __('inventory.ticket.vendor_step') }}</h3>
         <x-main.inventory.ticket-picker kind="vendor" :selected="$pickerConfig['vendor']" />
         <div class="grid gap-4 sm:grid-cols-2">
             <div>
                 <label for="receipt-reference" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('inventory.column.reference') }}</label>
                 <x-main.inventory.input name="reference" id="receipt-reference" form="inspection-ticket" maxlength="80" x-model="reference" required />
             </div>
-            <div>
+            <div class="min-w-0">
                 <label for="receipt-date" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('inventory.column.date') }}</label>
-                <x-main.inventory.input name="received_on" id="receipt-date" form="inspection-ticket" type="date" x-model="receivedOn" required />
+                <x-main.inventory.input name="received_on" id="receipt-date" form="inspection-ticket" type="date" x-model="receivedOn"
+                    class="min-w-0 [&::-webkit-date-and-time-value]:text-start" required />
             </div>
         </div>
     </section>
 
     <section x-cloak x-show="step === 2" data-ticket-step="2" class="space-y-4">
-        <h3 tabindex="-1" class="text-base font-semibold text-gray-900 dark:text-white">{{ __('inventory.ticket.items_step') }}</h3>
+        <h3 tabindex="-1" class="text-base font-semibold text-gray-900 xl:scroll-mt-24 dark:text-white">{{ __('inventory.ticket.items_step') }}</h3>
         <x-main.inventory.ticket-picker kind="variant" :selected="$initialVariant?->id" :variants="$variants" />
         <div x-show="selectedVariantId !== null">
-            <x-ui.button variant="outline" x-on:click="addLine()">{{ __('inventory.ticket.add_line') }}</x-ui.button>
+            <x-ui.button variant="outline" class="h-11 w-full sm:w-auto" x-on:click="addLine()">{{ __('inventory.ticket.add_line') }}</x-ui.button>
         </div>
 
         <p x-show="!lines.length" class="text-sm text-gray-600 dark:text-gray-300">{{ __('inventory.ticket.no_lines') }}</p>
         <template x-for="(line, index) in lines" x-bind:key="line.inventory_variant_id">
-            <div class="space-y-3 rounded-xl border border-gray-200 p-4 dark:border-gray-700">
+            <div class="space-y-3 rounded-xl border border-gray-200 p-3 dark:border-gray-700 sm:p-4">
                 <input type="hidden" form="inspection-ticket" x-bind:name="'lines[' + index + '][inventory_variant_id]'" x-bind:value="line.inventory_variant_id">
                 <div class="flex flex-wrap items-center justify-between gap-2">
                     <p x-text="labelFor(line.inventory_variant_id)" class="wrap-anywhere text-sm font-semibold text-gray-900 dark:text-white"></p>
                     <x-ui.button variant="ghost" size="sm" x-on:click="removeLine(index)">{{ __('inventory.ticket.remove_line') }}</x-ui.button>
                 </div>
-                <div class="grid items-start gap-3 sm:grid-cols-3">
+                <div class="grid grid-cols-2 items-start gap-3 sm:grid-cols-3">
                     <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
                         {{ __('inventory.column.received') }}
-                        <x-main.inventory.input name="received_quantity" class="mt-1.5" form="inspection-ticket" type="number"
+                        <x-main.inventory.input name="received_quantity" class="mt-1.5 min-w-0" form="inspection-ticket" type="number" inputmode="numeric"
                             x-bind:id="'ticket-quantity-' + line.inventory_variant_id" x-bind:name="'lines[' + index + '][received_quantity]'"
                             x-model="line.received_quantity" min="1" max="2147483647" required />
                     </label>
                     <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
                         {{ __('inventory.column.failed') }}
-                        <x-main.inventory.input name="failed_quantity" class="mt-1.5" form="inspection-ticket" type="number"
+                        <x-main.inventory.input name="failed_quantity" class="mt-1.5 min-w-0" form="inspection-ticket" type="number" inputmode="numeric"
                             x-bind:name="'lines[' + index + '][failed_quantity]'" x-model="line.failed_quantity" min="0"
                             x-bind:max="line.received_quantity || null" required />
                     </label>
-                    <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <div class="col-span-2 flex items-center justify-between gap-3 rounded-lg bg-success-50 px-3 py-2 text-sm font-medium text-success-700 dark:bg-success-500/10 dark:text-success-400 sm:col-span-1 sm:block sm:bg-transparent sm:p-0 sm:text-gray-700 dark:sm:bg-transparent dark:sm:text-gray-300">
                         {{ __('inventory.column.passed') }}
-                        <output x-text="passed(line)" class="mt-1.5 block py-2 font-semibold text-gray-900 dark:text-white"></output>
+                        <output x-text="passed(line)" class="block font-semibold tabular-nums sm:mt-1.5 sm:py-2"></output>
                     </div>
                 </div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     {{ __('inventory.qc.notes') }}
-                    <x-main.inventory.input name="notes" class="mt-1.5" form="inspection-ticket"
-                        x-bind:name="'lines[' + index + '][notes]'" x-model="line.notes" maxlength="2000" />
+                    <textarea name="notes" rows="2" form="inspection-ticket" x-bind:name="'lines[' + index + '][notes]'"
+                        x-model="line.notes" maxlength="2000"
+                        class="mt-1.5 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-base text-gray-900 focus:border-brand-500 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white sm:text-sm"></textarea>
                 </label>
             </div>
         </template>
     </section>
 
     <section x-cloak x-show="step === 3" data-ticket-step="3" class="space-y-4">
-        <h3 tabindex="-1" class="text-base font-semibold text-gray-900 dark:text-white">{{ __('inventory.ticket.review_step') }}</h3>
+        <h3 tabindex="-1" class="text-base font-semibold text-gray-900 xl:scroll-mt-24 dark:text-white">{{ __('inventory.ticket.review_step') }}</h3>
         <div class="rounded-xl border border-gray-200 p-4 text-sm text-gray-700 dark:border-gray-700 dark:text-gray-300">
-            <p x-text="reviewVendorLabel" class="font-semibold text-gray-900 dark:text-white"></p>
-            <p class="mt-1"><span x-text="reference"></span> · <span x-text="receivedOn"></span></p>
+            <p x-text="reviewVendorLabel" class="wrap-anywhere font-semibold text-gray-900 dark:text-white"></p>
+            <p class="mt-1 flex flex-wrap gap-x-3"><span x-text="reference" class="min-w-0 wrap-anywhere"></span><span x-text="receivedOn"></span></p>
         </div>
-        <div class="overflow-x-auto">
+        <div class="space-y-3 sm:hidden">
+            <div class="rounded-xl bg-gray-50 p-3 text-sm dark:bg-gray-800">
+                <p class="mb-2 font-semibold text-gray-900 dark:text-white">{{ __('inventory.ticket.total') }}</p>
+                <dl class="grid grid-cols-3 gap-2">
+                    @foreach (['received' => 'received_quantity', 'passed' => 'passed', 'failed' => 'failed_quantity'] as $label => $field)
+                        <div>
+                            <dt class="text-xs text-gray-600 dark:text-gray-300">{{ __('inventory.column.'.$label) }}</dt>
+                            <dd x-text="total(@js($field))" class="font-semibold tabular-nums text-gray-900 dark:text-white"></dd>
+                        </div>
+                    @endforeach
+                </dl>
+            </div>
+            <template x-for="(line, index) in lines" x-bind:key="line.inventory_variant_id">
+                <article class="rounded-xl border border-gray-200 p-3 text-sm dark:border-gray-700">
+                    <p x-text="(index + 1) + '. ' + labelFor(line.inventory_variant_id)" class="wrap-anywhere font-semibold text-gray-900 dark:text-white"></p>
+                    <dl class="mt-2 grid grid-cols-3 gap-2">
+                        @foreach (['received' => 'line.received_quantity', 'passed' => 'passed(line)', 'failed' => 'line.failed_quantity'] as $label => $quantity)
+                            <div>
+                                <dt class="text-xs text-gray-600 dark:text-gray-300">{{ __('inventory.column.'.$label) }}</dt>
+                                <dd x-text="{{ $quantity }}" class="font-semibold tabular-nums text-gray-900 dark:text-white"></dd>
+                            </div>
+                        @endforeach
+                    </dl>
+                    <p x-show="line.notes" x-text="line.notes" class="mt-2 wrap-anywhere whitespace-pre-line text-xs text-gray-600 dark:text-gray-300"></p>
+                </article>
+            </template>
+        </div>
+        <div class="hidden overflow-x-auto sm:block">
             <table class="w-full text-sm text-gray-700 dark:text-gray-300">
                 <thead class="bg-gray-50 dark:bg-gray-800">
                     <tr>
@@ -157,9 +187,10 @@
         <p class="text-sm text-gray-700 dark:text-gray-300" x-show="total('passed') === 0">{{ __('inventory.ticket.none_passed') }}</p>
     </section>
 
-    <div class="flex flex-wrap justify-end gap-2">
-        <x-ui.button variant="outline" x-cloak x-show="step > 1" x-on:click="goTo(step - 1)">{{ __('inventory.ticket.back') }}</x-ui.button>
-        <x-ui.button x-cloak x-show="step < 3" x-on:click="next()">{{ __('inventory.ticket.next') }}</x-ui.button>
-        <x-ui.button type="submit" form="inspection-ticket" x-cloak x-show="step === 3">{{ __('inventory.ticket.finish') }}</x-ui.button>
+    <div class="inventory-form-actions flex gap-2 sm:justify-end">
+        <x-ui.button variant="outline" class="min-h-11" x-cloak x-show="step > 1" x-on:click="goTo(step - 1)">{{ __('inventory.ticket.back') }}</x-ui.button>
+        <x-ui.button class="min-h-11 max-sm:flex-1" x-cloak x-show="step < 3" x-on:click="next()">{{ __('inventory.ticket.next') }}</x-ui.button>
+        <x-ui.button type="submit" form="inspection-ticket" class="min-h-11 max-sm:min-w-0 max-sm:flex-1 max-sm:whitespace-normal"
+            x-cloak x-show="step === 3">{{ __('inventory.ticket.finish') }}</x-ui.button>
     </div>
 </div>

@@ -1,5 +1,6 @@
-<header @class(['sticky top-0 z-50 flex items-center justify-between gap-2 border-b border-gray-200 bg-white px-3 py-3 dark:border-gray-800 dark:bg-gray-900 sm:gap-3 sm:px-4 md:px-6',
-    'pt-[calc(0.75rem+env(safe-area-inset-top))] xl:pt-3' => $mobileNavigation])>
+<header @if ($mobileNavigation) data-inventory-topbar @endif
+    @class(['sticky top-0 z-50 flex items-center justify-between gap-2 border-b border-gray-200 bg-white px-3 py-3 dark:border-gray-800 dark:bg-gray-900 sm:gap-3 sm:px-4 md:px-6',
+        'max-xl:fixed max-xl:inset-x-0 max-xl:top-(--inventory-viewport-top) max-xl:h-(--inventory-topbar-height) max-xl:pt-[calc(0.75rem+env(safe-area-inset-top))]' => $mobileNavigation])>
     <div class="flex min-w-0 items-center gap-2 sm:gap-3">
         <x-ui.button variant="ghost" size="icon" class="hidden xl:inline-flex" aria-label="{{ __('header.toggleSidebar') }}" @click="$store.sidebar.toggleExpanded()">
             <x-svg.menu-two class="size-5 rtl:-scale-x-100" />
