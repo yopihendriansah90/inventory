@@ -1441,6 +1441,27 @@ pre[class*='language-'].line-numbers {
   @apply rounded-xl shadow-theme-lg;
 }
 
+@keyframes inventory-guide-reveal {
+  from {
+    opacity: 0.65;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  html:has([data-inventory-guide]) {
+    scroll-behavior: smooth;
+  }
+
+  [data-inventory-guide] [data-guide-revealed] {
+    animation: inventory-guide-reveal 380ms ease-out;
+  }
+}
+
 @media (width < 1280px) {
   [data-inventory-mobile-shell] {
     --inventory-viewport-top: 0px;

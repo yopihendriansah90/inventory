@@ -6,6 +6,7 @@ import "./bootstrap";
 import initCharts from "./components/chart";
 import registerUi from "./ui";
 import inventoryQc from "./components/inventory/qc";
+import initializeInventoryGuide from "./components/inventory/guide";
 import initializeInventoryViewport from "./components/inventory/mobile-viewport";
 import dispatchForm from "./components/inventory/dispatch-form";
 import stockSearch from "./components/inventory/stock-search";
@@ -91,6 +92,7 @@ Alpine.store("direction", {
 
 Alpine.start();
 initializeNotifications();
+initializeInventoryGuide();
 initializeInventoryViewport();
 
 

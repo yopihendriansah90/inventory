@@ -77,13 +77,22 @@
     @mouseleave="$store.sidebar.setHovered(false)">
     <!-- Logo Section -->
     <div class="py-8 flex items-center gap-2" :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ? 'justify-center' : 'justify-between'">
-        <a href="/">
-            <div class="hidden [.sidebar-expanded_&]:block">
-                <img class="dark:hidden" src="/assets/images/logo/logo.svg" alt="Logo" width="150" height="40" />
-                <img class="hidden dark:block" src="/assets/images/logo/logo-dark.svg" alt="Logo" width="150" height="40" />
-            </div>
-            <img class="block [.sidebar-expanded_&]:hidden" src="/assets/images/logo/logo-icon.svg" alt="Logo" width="32" height="32" />
-        </a>
+        @if ($inventory)
+            <a href="{{ route('inventory.home') }}" aria-label="{{ __('inventory.title') }}" class="flex items-center gap-3">
+                <span class="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-600 text-white">
+                    <x-svg.box class="size-5" aria-hidden="true" />
+                </span>
+                <span class="hidden text-lg font-semibold text-gray-900 dark:text-white [.sidebar-expanded_&]:block">{{ __('inventory.title') }}</span>
+            </a>
+        @else
+            <a href="/">
+                <div class="hidden [.sidebar-expanded_&]:block">
+                    <img class="dark:hidden" src="/assets/images/logo/logo.svg" alt="Logo" width="150" height="40" />
+                    <img class="hidden dark:block" src="/assets/images/logo/logo-dark.svg" alt="Logo" width="150" height="40" />
+                </div>
+                <img class="block [.sidebar-expanded_&]:hidden" src="/assets/images/logo/logo-icon.svg" alt="Logo" width="32" height="32" />
+            </a>
+        @endif
     </div>
 
     <!-- Navigation Menu -->

@@ -17,7 +17,7 @@ test('the sign-in language is saved independently of the login session', functio
 
     $this->withCookie(SetInventoryLocale::COOKIE, 'id');
     $this->get(route('signin'))->assertOk()->assertSee('lang="id"', false)
-        ->assertSee('<title>Masuk | Stok Barang</title>', false)->assertSee('Kata sandi');
+        ->assertSee('<title>Masuk | Inventory</title>', false)->assertSee('Kata sandi');
     $this->from(route('signin'))->post(route('signin.store'), ['email' => 'qc@mail.com', 'password' => 'wrong'])
         ->assertRedirect(route('signin'))->assertSessionHasErrors(['email' => 'Email atau kata sandi salah.']);
     $this->post(route('signin.store'), ['email' => 'qc@mail.com', 'password' => 'admin'])->assertRedirect(route('inventory.home'));

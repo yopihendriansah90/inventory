@@ -17,7 +17,10 @@ test('demo accounts sign in to their role dashboard and can only open permitted 
     $workspace = $this->get(route('inventory.home'))->assertOk()->assertSee($dashboardTitle);
     $workspace->assertSee($mobileNav, false)
         ->assertSee('data-inventory-topbar', false)
-        ->assertSee('data-inventory-mobile-nav', false);
+        ->assertSee('data-inventory-mobile-nav', false)
+        ->assertSee('aria-label="Inventory"', false)
+        ->assertDontSee('TailAdmin')
+        ->assertDontSee('/assets/images/logo/logo');
     foreach (['qc', 'receiving', 'stock'] as $page) {
         $url = route('inventory.'.$page);
         if (in_array($page, $allowed, true)) {

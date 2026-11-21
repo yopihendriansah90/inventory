@@ -5,6 +5,10 @@ return [
         'title' => 'inventory.dashboard.title',
         'description' => 'inventory.dashboard.description',
     ],
+    '/inventory/panduan' => [
+        'title' => 'inventory.guide.title',
+        'description' => 'inventory.guide.description',
+    ],
     '/inventory/qc' => [
         'title' => 'inventory.meta.qc.title',
         'description' => 'inventory.meta.qc.description',

@@ -16,6 +16,9 @@ Route::get('/', function () {
 Route::post('/inventory/language', [InventorySessionController::class, 'language'])
     ->middleware(SetInventoryLocale::class)->name('inventory.language');
 
+Route::view('/inventory/panduan', 'pages.inventory.guide')
+    ->middleware(SetInventoryLocale::class)->name('inventory.guide');
+
 Route::middleware(SetInventoryLocale::class, 'auth')->prefix('inventory')->name('inventory.')->group(function () {
     Route::get('/', InventoryDashboardController::class)->name('home');
 

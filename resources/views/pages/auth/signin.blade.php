@@ -32,6 +32,14 @@
                 </div>
                 <x-ui.button type="submit" size="lg" class="w-full">{{ __('inventory.login.title') }}</x-ui.button>
             </form>
+            <div class="mt-6 border-t border-gray-200 pt-4 text-center dark:border-gray-800">
+                <x-ui.button as="a" :href="route('inventory.guide')" target="_blank" rel="noopener" variant="ghost"
+                    class="text-brand-700 dark:text-brand-300">
+                    {{ __('inventory.guide.link') }}
+                    <x-svg.arrow-right class="size-4 rtl:rotate-180" aria-hidden="true" />
+                    <span class="sr-only">{{ __('inventory.guide.new_tab') }}</span>
+                </x-ui.button>
+            </div>
         </div>
     </main>
 @endsection
