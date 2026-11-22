@@ -45,35 +45,63 @@ export default (messages, ticketPath, codePrefix) => {
     return {
         opening: false,
         cameraActive: false,
+        cameras: [],
+        cameraId: "",
+        cameraError: "",
         busy: false,
         readingImage: false,
 
-        async startCamera() {
-            if (this.opening || this.cameraActive || this.busy || this.readingImage) return;
+        async startCamera(deviceId = "") {
+            if (this.opening || this.busy || this.readingImage) return;
+            this.stopCamera();
+            this.cameraError = "";
             if (!navigator.mediaDevices?.getUserMedia) {
-                notify("warning", messages.cameraUnavailable);
+                this.cameraError = messages.cameraUnavailable;
                 return;
             }
 
             const session = ++cameraSession;
             this.opening = true;
             try {
-                const media = await navigator.mediaDevices.getUserMedia({
-                    audio: false,
-                    video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 } },
-                });
+                const devices = navigator.mediaDevices;
+                let media;
+                try {
+                    media = await devices.getUserMedia({
+                        audio: false,
+                        video: deviceId
+                            ? { deviceId: { exact: deviceId }, width: { ideal: 1280 } }
+                            : { facingMode: { ideal: "environment" }, width: { ideal: 1280 } },
+                    });
+                } catch (error) {
+                    if (deviceId || session !== cameraSession || error.name !== "OverconstrainedError") throw error;
+                    media = await devices.getUserMedia({ audio: false, video: true });
+                }
                 if (session !== cameraSession) {
                     media.getTracks().forEach((track) => track.stop());
                     return;
                 }
 
                 stream = media;
+                const [track] = media.getVideoTracks();
+                track.addEventListener("ended", () => {
+                    if (session !== cameraSession) return;
+                    this.stopCamera();
+                    this.cameraError = messages.cameraDisconnected;
+                }, { once: true });
+                this.cameraId = track.getSettings?.().deviceId || deviceId;
                 const video = this.$refs.preview;
                 video.srcObject = media;
                 await video.play();
                 if (session !== cameraSession) return;
                 this.cameraActive = true;
                 this.opening = false;
+                if (devices.enumerateDevices) {
+                    devices.enumerateDevices().then((list) => {
+                        if (session !== cameraSession) return;
+                        this.cameras = list.filter((device) => device.kind === "videoinput" && device.deviceId)
+                            .map(({ deviceId, label }) => ({ deviceId, label }));
+                    }).catch(() => {});
+                }
 
                 const readFrame = async () => {
                     if (session !== cameraSession) return;
@@ -90,14 +118,17 @@ export default (messages, ticketPath, codePrefix) => {
                     } catch {
                         if (session !== cameraSession) return;
                         this.stopCamera();
-                        notify("error", messages.cameraError);
+                        this.cameraError = messages.cameraError;
                     }
                 };
                 readFrame();
-            } catch {
+            } catch (error) {
                 if (session !== cameraSession) return;
                 this.stopCamera();
-                notify("error", messages.cameraError);
+                this.cameraError = {
+                    NotAllowedError: messages.cameraDenied,
+                    NotFoundError: messages.cameraMissing,
+                }[error.name] ?? messages.cameraError;
             }
         },
 
@@ -108,6 +139,8 @@ export default (messages, ticketPath, codePrefix) => {
             stream = null;
             if (this.$refs.preview) this.$refs.preview.srcObject = null;
             this.cameraActive = false;
+            this.cameras = [];
+            this.cameraId = "";
             this.opening = false;
         },
 

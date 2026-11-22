@@ -34,31 +34,42 @@
             <div x-data="warehouseScanner(@js([
                 'cameraUnavailable' => __('inventory.scan.camera_unavailable'),
                 'cameraError' => __('inventory.scan.camera_error'),
+                'cameraDenied' => __('inventory.scan.camera_denied'),
+                'cameraMissing' => __('inventory.scan.camera_missing'),
+                'cameraDisconnected' => __('inventory.scan.camera_disconnected'),
                 'imageError' => __('inventory.scan.image_error'),
                 'invalidQuery' => __($invalid),
                 'lookupError' => __('inventory.scan.lookup_error'),
             ]), @js($ticketPath), @js($dispatch ? 'OUT' : 'QC'))"
                 x-on:pagehide.window="stop()" class="space-y-4 sm:space-y-5">
-                <div class="mx-auto max-w-md">
-                    <div @class([
-                        'relative grid aspect-video w-full place-items-center overflow-hidden rounded-2xl bg-gray-900 text-white dark:bg-gray-950',
-                        'max-sm:max-h-36',
-                    ])>
+                <div>
+                    <div class="relative grid aspect-square max-h-[55dvh] w-full place-items-center overflow-hidden rounded-2xl bg-gray-900 text-white dark:bg-gray-950 sm:aspect-video">
                         <video x-ref="preview" aria-label="{{ __('inventory.scan.preview') }}" autoplay muted playsinline
-                            class="absolute inset-0 size-full object-contain" x-bind:class="{ 'opacity-0': !cameraActive }"></video>
+                            class="absolute inset-0 size-full object-cover sm:object-contain" x-bind:class="{ 'opacity-0': !cameraActive }"></video>
                         <span x-show="!cameraActive" class="text-gray-300">
                             <x-svg.qr-scan class="size-14" />
                         </span>
                         <div x-cloak x-show="cameraActive" aria-hidden="true"
-                            class="pointer-events-none absolute aspect-square h-3/4 rounded-2xl border-2 border-brand-300 dark:border-brand-300"></div>
+                            class="pointer-events-none absolute aspect-square h-3/5 max-w-[65%] rounded-2xl border-2 border-brand-300 dark:border-brand-300"></div>
                     </div>
                     <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-300">{{ __($instruction) }}</p>
-                    <div class="mt-3 flex justify-center">
+                    <p x-cloak x-show="cameraError" x-text="cameraError" role="alert" class="mt-2 text-sm text-error-600 dark:text-error-400"></p>
+                    <div class="mt-3 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-center">
+                        <div x-cloak x-show="cameraActive && cameras.length > 1" class="min-w-0 sm:max-w-xs">
+                            <label for="ticket-qr-camera" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('inventory.scan.camera_select') }}</label>
+                            <select id="ticket-qr-camera" x-effect="$el.value = cameraId" x-on:change="startCamera($event.target.value)"
+                                class="min-h-11 w-full rounded-lg border border-gray-300 bg-white px-3 text-start text-sm text-gray-800 focus-visible:outline-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
+                                <option value="">{{ __('inventory.scan.camera_default') }}</option>
+                                <template x-for="(camera, index) in cameras" x-bind:key="camera.deviceId">
+                                    <option x-bind:value="camera.deviceId" x-text="camera.label || @js(__('inventory.scan.camera_number')).replace(':number', index + 1)" x-bind:selected="camera.deviceId === cameraId"></option>
+                                </template>
+                            </select>
+                        </div>
                         <x-ui.button size="lg" class="w-full sm:w-auto" x-show="!cameraActive" x-on:click="startCamera()" x-bind:disabled="opening || busy || readingImage">
                             <span x-show="!opening">{{ __('inventory.scan.camera') }}</span>
-                            <span x-cloak x-show="opening">{{ __('inventory.scan.opening') }}</span>
+                            <span x-cloak x-show="opening" role="status">{{ __('inventory.scan.opening') }}</span>
                         </x-ui.button>
-                        <x-ui.button size="lg" variant="outline" class="w-full sm:w-auto" x-cloak x-show="cameraActive" x-on:click="stopCamera()">
+                        <x-ui.button size="lg" variant="outline" class="w-full sm:w-auto" x-cloak x-show="cameraActive || opening" x-on:click="stopCamera()">
                             {{ __('inventory.scan.stop') }}
                         </x-ui.button>
                     </div>
